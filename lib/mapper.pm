@@ -78,7 +78,7 @@ sub get_pcgroups {
     	
     	foreach my $pc (@{$pcs}) {
 	    	
-	    	if ( ! $pcgroups{$pc} ) { $pcgroups{$pc}->{'id'} = 'pcgroup'.$pc ;	$pcgroups{$pc}->{'annotation'} = {} ; $pcgroups{$pc}->{'massbank_ids'} = [] ; }
+	    	if ( ! $pcgroups{$pc} ) { $pcgroups{$pc}->{'id'} = $pc ;	$pcgroups{$pc}->{'annotation'} = {} ; $pcgroups{$pc}->{'massbank_ids'} = [] ; }
 	    	
 	    	push (@{$pcgroups{$pc}->{'mzmed'}}, $mzs->[$i]) if ($mzs->[$i]) ; ## map mzs by pcgroup
 	    	push (@{$pcgroups{$pc}->{'into'}}, $ints->[$i]) if ($ints->[$i]) ; ## map into by pcgroup
