@@ -132,9 +132,9 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 			print "\n------  ** ** ** Using multithreading mode ** ** ** --------\n\n" ;
 			my $time_start = time ;
 			
-			my $nb_threads = $CONF->{'THREADING_THRESHOLD'} ;
+			our $NBTHREADS = $CONF->{'THREADING_THRESHOLD'} ;
 
-			use constant THREADS => 5 ;
+#			use constant THREADS => 6 ;
 			my $Qworks = Thread::Queue->new();
 			my @threads = () ;
 			my @queries = () ;
@@ -144,13 +144,13 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 				push (@queries, $pcgroups->{$pc_group_id}) if $pcgroups->{$pc_group_id} ;
 			}
 			
-			for (1..THREADS) {
+			for (1..$NBTHREADS) {
 				my $oworker = lib::threader->new ;
 			    push @threads, threads->create(sub { $oworker->searchSpectrumWorker($Qworks, $server) ; } ) ;
 			}
 			
 			$Qworks->enqueue(@queries);
-			$Qworks->enqueue(undef) for 1..THREADS;
+			$Qworks->enqueue(undef) for 1..$NBTHREADS;
 			push @Qresults, $_->join foreach @threads;
 
 			
