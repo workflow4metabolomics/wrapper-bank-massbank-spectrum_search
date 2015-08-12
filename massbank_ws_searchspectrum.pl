@@ -121,12 +121,12 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	
 #	print Dumper $pcgroups ;
 	
-	
-	my $pc_num = scalar(@{$pcgroup_list}) ;
+	my $pc_num = 0 ;
+	$pc_num = scalar(@{$pcgroup_list}) ;
 	
 	## manage a list of query pc_group dependant:
 	if ($pcgroups) {
-		
+		## - - - - - - -  - - - - -  - - - -  - - - - - Multithreadind mode if pcgroups > 6 - - - - - - - - - - - - - - - - 
 		if ($pc_num > $CONF->{'THREADING_THRESHOLD'}) {
 			print $server."\n" ;
 			print "\n------  ** ** ** Using multithreading mode ** ** ** --------\n\n" ;
@@ -159,10 +159,35 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 			print "\n------  Time used in multithreading mode : $seconds seconds --------\n\n" ;
 			
 			print Dumper @Qresults ;
-			## TODO...
-			#Map @Qresults with annotation hash 
 			
+			## controle number of returned queries :
+			my $massbank_results_num = 0 ;
+			$massbank_results_num = scalar @Qresults ;
+			
+			if ( $massbank_results_num == $pc_num ) {
+				## Map @Qresults with annotation hash : pcgroup_id in @Qresults (pcgroup2) // id in $pcgroups (pcgroup2)
+				foreach my $result (@Qresults) {
+					## manage annotation part
+					if ($result->{'pcgroup_id'}) {
+						if ($pcgroups->{$result->{'pcgroup_id'}}) {
+							$pcgroups->{$result->{'pcgroup_id'}}{'annotation'} = $result ;
+						}
+						else { carp "Carefull : no mapping possible between massbank results and initial pcgroups data\n";}
+					}
+					else { carp "Carefull : no pcgroup id defined in massbank results\n"; }
+					
+					## manage massbank_ids part
+					if ($result->{'res'}) {
+						my @tmp_res = map {$_->{'id'}} @{$result->{'res'}} ;
+						$pcgroups->{$result->{'pcgroup_id'}}{'massbank_ids'} = \@tmp_res ;					
+					}
+				}
+			}
+			else {
+				croak "[ERROR] : problem between massbank results number and pcgroups number\n";
+			}
 		}
+		## - - - - - - -  - - - - -  - - - -  - - - - - mono thread mode if pcgroups <= 6 - - - - - - - - - - - - - - - - 
 		else {
 			## connexion
 			print $server."\n" ;
