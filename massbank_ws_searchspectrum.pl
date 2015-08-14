@@ -36,7 +36,7 @@ use lib::mapper qw(:ALL) ;
 
 
 ## Initialized values
-my ($help, $mzs_file, $col_id, $col_mz, $col_int, $col_pcgroup, $line_header ) = ( undef, undef, undef, undef, undef,undef, undef ) ;
+my ($help, $mzs_file, $col_mz, $col_int, $col_pcgroup, $line_header ) = ( undef, undef, undef, undef, undef,undef, undef ) ;
 my $mass = undef ;
 my ($ion_mode, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef ) ;
 my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
@@ -50,7 +50,6 @@ my $threading_threshold = 6 ;
 #=============================================================================
 &GetOptions ( 	"help|h"     	=> \$help,       # HELP
 				"masses:s"		=> \$mzs_file,
-				"col_id:i"		=> \$col_id, # A voir
 				"col_mz:i"		=> \$col_mz,
 				"col_int:i"		=> \$col_int,
 				"col_pcgroup:i"	=> \$col_pcgroup,
@@ -85,7 +84,7 @@ foreach my $conf ( <$binPath/*.cfg> ) {
 foreach my $html_template ( <$binPath/*.tmpl> ) { $CONF->{'HTML_TEMPLATE'} = $html_template ; }
 
 ## Main variables :
-my ($pcs, $mzs, $ids, $into) = (undef, undef, undef, undef) ;
+my ($pcs, $mzs, $into) = (undef, undef, undef) ;
 
 ## manage a list of masses separate by space only 
 if ( ( defined $mass ) and ( $mass ne "" ) and ( $mass =~ /[\s]+/ ) ) {
@@ -102,21 +101,20 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	if ( ( defined $line_header ) and ( $line_header > 0 ) ) { $is_header = 'yes' ;    }
 	$pcs = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_pcgroup, $is_header ) ; ## retrieve pc values on csv
 	$mzs = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_mz, $is_header ) ; ## retrieve mz values on csv
-	$ids = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_id, $is_header ) ; ## retrieve ids values on csv
 	$into = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_int, $is_header ) if ( defined $col_int ); ## retrieve into values on csv // optionnal in input files
 	
 	## manage input file with no into colunm / init into with a default value of 10
 	if ( !defined $col_int ) {
-		my $nb_ids = scalar(@{$ids}) ;
-		my @intos = map {10} (0..$nb_ids) ;
+		my $nb_mzs = scalar(@{$mzs}) ;
+		my @intos = map {10} (0..$nb_mzs) ;
 		my $nb_intos = scalar(@intos) ;
-		if ($nb_intos == $nb_ids) { $into = \@intos ;	}
+		if ($nb_intos == $nb_mzs) { $into = \@intos ;	}
 	}
 	
 	
 	## Build pcgroups with their features :
 	my $omap = lib::mapper->new() ;
-	my $pcgroups = $omap->get_pcgroups($pcs, $mzs, $into, $ids ) ;
+	my $pcgroups = $omap->get_pcgroups($pcs, $mzs, $into ) ;
 	my $pcgroup_list = $omap->get_pcgroup_list($pcs ) ;
 	
 #	print Dumper $pcgroups ;
