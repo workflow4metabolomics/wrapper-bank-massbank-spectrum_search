@@ -99,9 +99,9 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	my $ocsv = lib::csv->new() ;
 	my $csv = $ocsv->get_csv_object( "\t" ) ;
 	if ( ( defined $line_header ) and ( $line_header > 0 ) ) { $is_header = 'yes' ;    }
-	$pcs = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_pcgroup, $is_header ) ; ## retrieve pc values on csv
-	$mzs = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_mz, $is_header ) ; ## retrieve mz values on csv
-	$into = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_int, $is_header ) if ( defined $col_int ); ## retrieve into values on csv // optionnal in input files
+	$pcs = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_pcgroup, $is_header, $line_header ) ; ## retrieve pc values on csv
+	$mzs = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_mz, $is_header, $line_header ) ; ## retrieve mz values on csv
+	$into = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_int, $is_header, $line_header ) if ( defined $col_int ); ## retrieve into values on csv // optionnal in input files
 	
 	## manage input file with no into colunm / init into with a default value of 10
 	if ( !defined $col_int ) {
