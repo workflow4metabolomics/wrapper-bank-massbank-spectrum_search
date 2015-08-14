@@ -32,36 +32,36 @@ use lib::conf  qw( :ALL ) ;
 use lib::massbank_api qw( :ALL ) ;
 use lib::threader qw(:ALL) ;
 use lib::mapper qw(:ALL) ;
+use lib::writter qw(:ALL) ;
 
 
 
 ## Initialized values
-my ($help, $mzs_file, $col_id, $col_mz, $col_int, $col_pcgroup, $line_header ) = ( undef, undef, undef, undef, undef,undef, undef ) ;
+my ($help, $mzs_file, $col_mz, $col_int, $col_pcgroup, $line_header ) = ( undef, undef, undef, undef, undef,undef, undef ) ;
 my $mass = undef ;
-my ($ion_mode, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef ) ;
+my ($server, $ion_mode, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef ) ;
 my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
 
-## Local values :
-my $server = 'JP' ;
-my $threading_threshold = 6 ;
+## Local values ONLY FOR TEST :
+#my $server = 'JP' ;
+#my $threading_threshold = 6 ;
 
 #=============================================================================
 #                                Manage EXCEPTIONS
 #=============================================================================
 &GetOptions ( 	"help|h"     	=> \$help,       # HELP
 				"masses:s"		=> \$mzs_file,
-				"col_id:i"		=> \$col_id, # A voir
 				"col_mz:i"		=> \$col_mz,
 				"col_int:i"		=> \$col_int,
 				"col_pcgroup:i"	=> \$col_pcgroup,
 				"lineheader:i"	=> \$line_header,
 				"mode:s"		=> \$ion_mode, 
-				"instruments:s@"	=> \$instruments, 
-				"max:i"			=> \$max, 
-				"unit:s"		=> \$unit, 
+				"instruments:s@"	=> \$instruments, # advanced 
+				"max:i"			=> \$max, # advanced
+				"unit:s"		=> \$unit, # advanced
 				"tolerance:f"	=> \$tol, 
-				"cutoff:f"		=> \$cutoff,
-				"server:s"		=> \$server, ## by default JP
+				"cutoff:f"		=> \$cutoff, # advanced
+				"server:s"		=> \$server, ## by default JP and # advanced
 				"json:s"		=> \$out_json,
 				"xls:s"			=> \$out_xls,
 				"csv:s"			=> \$out_csv,
@@ -85,7 +85,7 @@ foreach my $conf ( <$binPath/*.cfg> ) {
 foreach my $html_template ( <$binPath/*.tmpl> ) { $CONF->{'HTML_TEMPLATE'} = $html_template ; }
 
 ## Main variables :
-my ($pcs, $mzs, $ids, $into) = (undef, undef, undef, undef) ;
+my ($pcs, $mzs, $into, $complete_rows, $pcgroups) = (undef, undef, undef, undef, undef) ;
 
 ## manage a list of masses separate by space only 
 if ( ( defined $mass ) and ( $mass ne "" ) and ( $mass =~ /[\s]+/ ) ) {
@@ -100,41 +100,41 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	my $ocsv = lib::csv->new() ;
 	my $csv = $ocsv->get_csv_object( "\t" ) ;
 	if ( ( defined $line_header ) and ( $line_header > 0 ) ) { $is_header = 'yes' ;    }
-	$pcs = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_pcgroup, $is_header ) ; ## retrieve pc values on csv
-	$mzs = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_mz, $is_header ) ; ## retrieve mz values on csv
-	$ids = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_id, $is_header ) ; ## retrieve ids values on csv
-	$into = $ocsv->get_value_from_csv( $csv, $mzs_file, $col_int, $is_header ) if ( defined $col_int ); ## retrieve into values on csv // optionnal in input files
+	$pcs = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_pcgroup, $is_header, $line_header ) ; ## retrieve pc values on csv
+	$mzs = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_mz, $is_header, $line_header ) ; ## retrieve mz values on csv
+	$into = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_int, $is_header, $line_header ) if ( defined $col_int ); ## retrieve into values on csv // optionnal in input files
+	$complete_rows = $ocsv->parse_csv_object($csv, \$mzs_file) ; ## parse all csv for output csv build
 	
 	## manage input file with no into colunm / init into with a default value of 10
 	if ( !defined $col_int ) {
-		my $nb_ids = scalar(@{$ids}) ;
-		my @intos = map {10} (0..$nb_ids) ;
+		my $nb_mzs = scalar(@{$mzs}) ;
+		my @intos = map {10} (0..$nb_mzs) ;
 		my $nb_intos = scalar(@intos) ;
-		if ($nb_intos == $nb_ids) { $into = \@intos ;	}
+		if ($nb_intos == $nb_mzs) { $into = \@intos ;	}
 	}
 	
 	
 	## Build pcgroups with their features :
 	my $omap = lib::mapper->new() ;
-	my $pcgroups = $omap->get_pcgroups($pcs, $mzs, $into, $ids ) ;
+	$pcgroups = $omap->get_pcgroups($pcs, $mzs, $into ) ;
 	my $pcgroup_list = $omap->get_pcgroup_list($pcs ) ;
 	
 #	print Dumper $pcgroups ;
 	
-	
-	my $pc_num = scalar(@{$pcgroup_list}) ;
+	my $pc_num = 0 ;
+	$pc_num = scalar(@{$pcgroup_list}) ;
 	
 	## manage a list of query pc_group dependant:
 	if ($pcgroups) {
-		
+		## - - - - - - -  - - - - -  - - - -  - - - - - Multithreadind mode if pcgroups > 6 - - - - - - - - - - - - - - - - 
 		if ($pc_num > $CONF->{'THREADING_THRESHOLD'}) {
 			print $server."\n" ;
 			print "\n------  ** ** ** Using multithreading mode ** ** ** --------\n\n" ;
 			my $time_start = time ;
 			
-			my $nb_threads = $CONF->{'THREADING_THRESHOLD'} ;
+			our $NBTHREADS = $CONF->{'THREADING_THRESHOLD'} ;
 
-			use constant THREADS => 5 ;
+#			use constant THREADS => 6 ;
 			my $Qworks = Thread::Queue->new();
 			my @threads = () ;
 			my @queries = () ;
@@ -144,13 +144,13 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 				push (@queries, $pcgroups->{$pc_group_id}) if $pcgroups->{$pc_group_id} ;
 			}
 			
-			for (1..THREADS) {
+			for (1..$NBTHREADS) {
 				my $oworker = lib::threader->new ;
 			    push @threads, threads->create(sub { $oworker->searchSpectrumWorker($Qworks, $server) ; } ) ;
 			}
 			
 			$Qworks->enqueue(@queries);
-			$Qworks->enqueue(undef) for 1..THREADS;
+			$Qworks->enqueue(undef) for 1..$NBTHREADS;
 			push @Qresults, $_->join foreach @threads;
 
 			
@@ -159,10 +159,35 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 			print "\n------  Time used in multithreading mode : $seconds seconds --------\n\n" ;
 			
 			print Dumper @Qresults ;
-			## TODO...
-			#Map @Qresults with annotation hash 
 			
+			## controle number of returned queries :
+			my $massbank_results_num = 0 ;
+			$massbank_results_num = scalar @Qresults ;
+			
+			if ( $massbank_results_num == $pc_num ) {
+				## Map @Qresults with annotation hash : pcgroup_id in @Qresults (pcgroup2) // id in $pcgroups (pcgroup2)
+				foreach my $result (@Qresults) {
+					## manage annotation part
+					if ($result->{'pcgroup_id'}) {
+						if ($pcgroups->{$result->{'pcgroup_id'}}) {
+							$pcgroups->{$result->{'pcgroup_id'}}{'annotation'} = $result ;
+						}
+						else { carp "Carefull : no mapping possible between massbank results and initial pcgroups data\n";}
+					}
+					else { carp "Carefull : no pcgroup id defined in massbank results\n"; }
+					
+					## manage massbank_ids part
+					if ($result->{'res'}) {
+						my @tmp_res = map {$_->{'id'}} @{$result->{'res'}} ;
+						$pcgroups->{$result->{'pcgroup_id'}}{'massbank_ids'} = \@tmp_res ;					
+					}
+				}
+			}
+			else {
+				croak "[ERROR] : problem between massbank results number and pcgroups number\n";
+			}
 		}
+		## - - - - - - -  - - - - -  - - - -  - - - - - mono thread mode if pcgroups <= 6 - - - - - - - - - - - - - - - - 
 		else {
 			## connexion
 			print $server."\n" ;
@@ -184,16 +209,38 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 		}
 	}
 	else {
-		
+		croak "The pcgroup object is not defined\n" ;
 	}
+	print Dumper $pcgroups ;
 	
-	print Dumper $pcgroups
+} ## End of elsif "defined $mzs_file"
+
+
+## Output writting :
+my ( $massbank_matrix ) = ( undef ) ;
+## JSON output
+if (  (defined $out_json) and  (defined $pcgroups) ) {
+	
+	
 	
 }
-
-
-
-
+## CSV OUTPUT
+if (  (defined $out_csv) and  (defined $pcgroups) ) {
+	my $omapper = lib::mapper->new() ;
+	if (defined $mzs_file) {
+		if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $pcgroups ) ; }
+		elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $pcgroups ) ; }
+		$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
+		my $owritter = lib::writter->new() ;
+		$owritter->write_csv_skel(\$out_csv, $massbank_matrix) ;
+	}
+	
+}
+## XLS OUTPUT 
+if (  (defined $out_xls) and  (defined $pcgroups) ) {
+	
+	
+}
 
 
 
@@ -231,7 +278,7 @@ USAGE :
 			-unit [unit or ppm]
 			-tolerance [Tolerance of values of m/z of peaks: 0.3 unit or 50 ppm]
 			-cutoff [Ignore peaks whose intensity is not larger than the value of cutoff. Default: 50)]
-			
+			-server [name of the massbank server : EU or JP only]
 			-json [ouput file for JSON]
 			-xls [ouput file for XLS]
 			-csv [ouput file for TABULAR]

@@ -119,7 +119,7 @@ sub selectMassBank() {
     if ( (defined $server ) and ($server eq 'JP') ) {
     	$osoap = $ombk->connectMassBankJP() ;
     }
-    elsif ( (defined $server ) and ($server eq 'DE') ){
+    elsif ( (defined $server ) and ($server eq 'EU') ){
     	$osoap = $ombk->connectMassBankDE() ;
     }
     elsif ( !defined $server ) {
@@ -310,12 +310,13 @@ sub searchSpectrum() {
 					@dats = $som->valueof('//results/[>0]'); 
 					$numdats = $som->valueof('//numResults') ;
 					my $i ;
+					my @res = () ;
 					## For results
 					if ($numdats > 0) {
 						## insert nb of res 
 						$ret{ 'num_res'} = $numdats ;
 						$ret{ 'pcgroup_id'} = $pcgroup_id ;
-						my @res = () ;
+						
 						## manage mapping for spectral features
 						for ( $i = 0; $i < $numdats; $i ++ ) {
 							my ($exactMass, $formula, $id, $score, $title) = @dats[($i * 5) .. ($i * 5 + 4)];
@@ -329,7 +330,8 @@ sub searchSpectrum() {
 						$ret{ 'num_res'} = $numdats ;
 						$ret{ 'pcgroup_id'} = $pcgroup_id ;
 						my (%val) = ('id', undef, 'title', undef, 'formula', undef, 'exactMass', undef, 'score', undef);
-						$ret{'res'} = \%val ;
+						push(@res, { %val });
+						$ret{'res'} = \@res;
 					}
 	    		}
 		    }

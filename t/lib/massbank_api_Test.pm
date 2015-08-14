@@ -10,8 +10,8 @@ use Data::Dumper ;
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( get_pcgroup_listTest get_pcgroupsTest threading_methods_getRecordInfoTest connectMassBankTest connectMassBankJPTest connectMassBankDETest getInstrumentTypesTest getRecordInfoTest searchSpectrumTest searchSpectrumNBTest getPeakTest);
-our %EXPORT_TAGS = ( ALL => [qw(get_pcgroup_listTest get_pcgroupsTest threading_methods_getRecordInfoTest connectMassBankTest connectMassBankJPTest connectMassBankDETest getInstrumentTypesTest getRecordInfoTest searchSpectrumTest searchSpectrumNBTest getPeakTest)] );
+our @EXPORT = qw(   threading_methods_getRecordInfoTest connectMassBankTest connectMassBankJPTest connectMassBankDETest getInstrumentTypesTest getRecordInfoTest searchSpectrumTest searchSpectrumNBTest getPeakTest);
+our %EXPORT_TAGS = ( ALL => [qw(  threading_methods_getRecordInfoTest connectMassBankTest connectMassBankJPTest connectMassBankDETest getInstrumentTypesTest getRecordInfoTest searchSpectrumTest searchSpectrumNBTest getPeakTest)] );
 
 use lib '/Users/fgiacomoni/Inra/labs/perl/galaxy_tools/massbank_ws_searchspectrum' ;
 use lib::massbank_api qw( :ALL ) ;
@@ -98,25 +98,6 @@ sub threading_methods_getRecordInfoTest {
 	$results = $othreads->threading_getRecordInfo($osoap, $ids) ; 
 	return($results) ;
 }
-
-
-sub get_pcgroupsTest {
-	my ( $pcs, $mzs, $ints, $names ) = @_;
-	my $omap = lib::mapper->new() ;
-	my $pcgroups = $omap->get_pcgroups($pcs, $mzs, $ints, $names) ;
-#	print Dumper $pcgroups ;
-	return ($pcgroups) ;
-}
-
-
-sub get_pcgroup_listTest {
-	my ($pcs) = @_ ; 
-	my $omap = lib::mapper->new() ;
-	my $pcgroup_list = $omap->get_pcgroup_list($pcs) ;
-#	print Dumper $pcgroup_list ;
-	return ($pcgroup_list) ;
-}
-
 
 
 1 ;
