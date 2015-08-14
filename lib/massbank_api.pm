@@ -119,7 +119,7 @@ sub selectMassBank() {
     if ( (defined $server ) and ($server eq 'JP') ) {
     	$osoap = $ombk->connectMassBankJP() ;
     }
-    elsif ( (defined $server ) and ($server eq 'DE') ){
+    elsif ( (defined $server ) and ($server eq 'EU') ){
     	$osoap = $ombk->connectMassBankDE() ;
     }
     elsif ( !defined $server ) {
