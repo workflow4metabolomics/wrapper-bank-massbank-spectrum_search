@@ -5,94 +5,147 @@ no warnings qw/void/;
 use strict;
 no strict "refs" ;
 use Test::More qw( no_plan );
-#use Test::More tests => 8 ;
+#use Test::More tests => 8 ; ## with MAPPER SEQUENCE
 use FindBin ;
+use Carp ;
 
 ## Specific Modules
 use lib $FindBin::Bin ;
 my $binPath = $FindBin::Bin ;
 use lib::massbank_api_Test qw( :ALL ) ;
-
-## testing connectMassBank on Japan and DE servers.
-## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n\t\t\t\t  * * * * * * \n" ;
-print "\t  * * * - - - Test MassBank API from SOAP - - - * * * \n\n" ;
-
-##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# ARGVTS : $pcs, $mzs, $ints, $names
-print "\n** Test 01 get_pcgroup_list with pcs array **\n" ;
-is_deeply( get_pcgroup_listTest (
-	[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,7,8,8,8,8,8,9,9,10,10,10,10,11,12,13,13,13,14,14,14] ),
-	[
-          '1',
-          '2',
-          '3',
-          '4',
-          '5',
-          '6',
-          '7',
-          '8',
-          '9',
-          '10',
-          '11',
-          '12',
-          '13',
-          '14'
-	] ,
-'Method \'getPcgroupList\' works with various and multiple pcgroups and return the attended uniq pcgroups array');
+use lib::massbank_mapper_Test qw( :ALL ) ;
 
 
-##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# ARGVTS : $pcs, $mzs, $ints, $names
-print "\n** Test 02 get_pcgroups with pcs, mzs, ints, names arrays **\n" ;
-is_deeply( get_pcgroupsTest (
-	[1, 2, 1, 2, 1, 2, 1], ['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], ['300', '300', '300', '300', '300', '300', '300'], ['name1', 'name2', 'name3', 'name4', 'name5', 'name6', 'name7'] ), 
-	{
-		'1' => {
-                   'id' => 'pcgroup1',
-                   'names' => [
-                                'name1',
-                                'name3',
-                                'name5',
-                                'name7'
-                              ],
-                   'mzmed' => [
-                                '273.096',
-                                '290.118',
-                                '292.113',
-                                '580.179'
-                              ],
-                   'into' => [
-                               '300',
-                               '300',
-                               '300',
-                               '300'
-                             ],
-                   'annotation' => [],
-                   'massbank_ids' => []
-                 },
-          '2' => {
-                   'annotation' => [],
-                   'into' => [
-                               '300',
-                               '300',
-                               '300'
-                             ],
-                   'names' => [
-                                'name2',
-                                'name4',
-                                'name6'
-                              ],
-                   'mzmed' => [
-                                '289.086',
-                                '291.096',
-                                '579.169'
-                              ],
-                   'id' => 'pcgroup2',
-                   'massbank_ids' => [],
-                 }
-	},  
-'Method \'getPcgroups\' works with one pcgroup and return the attended pcgroups object');
+## To launch the right sequence : API, MAPPER, THREADER, ...
+my $sequence = 'MAPPER' ; 
+my $current_test = 1 ;
+
+
+
+
+
+if ($sequence eq "MAPPER") {
+	
+	## testing mapper module of massbank wrapper.
+	## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	print "\n\t\t\t\t  * * * * * * \n" ;
+	print "\t  * * * - - - Test MassBank Mapper module - - - * * * \n\n" ;
+
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# ARGVTS : $pcs, $mzs, $ints
+	sleep 1 ; print "\n** Test $current_test get_pcgroup_list with pcs array **\n" ; $current_test++ ; 
+	is_deeply( get_pcgroup_listTest (
+		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,7,8,8,8,8,8,9,9,10,10,10,10,11,12,13,13,13,14,14,14] ),
+		['1', '2','3','4','5','6','7','8','9','10','11','12','13','14'] ,
+	'Method \'getPcgroupList\' works with various and multiple pcgroups and return the attended uniq pcgroups array');
+	
+	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# ARGVTS : $pcs, $mzs, $ints, $names
+	print "\n** Test $current_test get_pcgroups with pcs, mzs, ints, names arrays **\n" ; $current_test++ ;
+	is_deeply( get_pcgroupsTest (
+		[1, 2, 1, 2, 1, 2, 1], ['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], ['300', '300', '300', '300', '300', '300', '300'], ['name1', 'name2', 'name3', 'name4', 'name5', 'name6', 'name7'] ), 
+		{ '1' => {   'id' => '1',
+	                   'mzmed' => ['273.096','290.118','292.113','580.179'],
+	                   'into' => ['300','300','300','300'],
+	                   'annotation' => {},
+	                   'massbank_ids' => []    },
+	      '2' => { 'annotation' => {},
+	                   'into' => ['300','300','300'],
+	                   'mzmed' => ['289.086','291.096','579.169'],
+	                   'id' => '2',
+	                   'massbank_ids' => [],   }
+		},  
+	'Method \'getPcgroups\' works with two pcgroups and return the attended pcgroups object');
+	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	## ARGVTS : $header, $init_pcs, $pcgroups
+	sleep 1 ; print "\n** Test $current_test set_massbank_matrix_object with pc array and pcgroups object **\n" ; $current_test++ ; 
+	is_deeply( set_massbank_matrix_objectTest ( 'massbank', [1,1,2,2,1], 
+		{ '1' => {   'id' => '1',
+		                   'mzmed' => ['273.096','290.118','292.113','580.179'],
+		                   'into' => ['300','300','300','300'],
+		                   'annotation' => {'num_res' => 3},
+		                   'massbank_ids' => ['CA0001', 'CA0011', 'CA0111']    },
+		      '2' => { 'annotation' => {'num_res' => 3},
+		                   'into' => ['300','300','300'],
+		                   'mzmed' => ['289.086','291.096','579.169'],
+		                   'id' => '2',
+		                   'massbank_ids' => ['CA0002', 'CA0022', 'CA0222'],   }
+		} ), ## end argvts
+		[ [ 'massbank' ], ['CA0001|CA0011|CA0111'],['CA0001|CA0011|CA0111'],  ['CA0002|CA0022|CA0222'], ['CA0002|CA0022|CA0222'],  ['CA0001|CA0011|CA0111'] ], 
+	'Method \'set_massbank_matrix_object\' works with header, pcs list, pcgroups and return the attended massbank matrix');
+	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	## ARGVTS : $header, $init_pcs, $pcgroups
+	sleep 1 ; print "\n** Test $current_test set_massbank_matrix_object with undef hearder, pc array and pcgroups object **\n" ; $current_test++ ; 
+	is_deeply( set_massbank_matrix_objectTest ( undef, [1,1,2,2,1], 
+		{ '1' => {   'id' => '1',
+		                   'mzmed' => ['273.096','290.118','292.113','580.179'],
+		                   'into' => ['300','300','300','300'],
+		                   'annotation' => {'num_res' => 3},
+		                   'massbank_ids' => ['CA0001', 'CA0011', 'CA0111']    },
+		      '2' => { 'annotation' => {'num_res' => 3},
+		                   'into' => ['300','300','300'],
+		                   'mzmed' => ['289.086','291.096','579.169'],
+		                   'id' => '2',
+		                   'massbank_ids' => ['CA0002', 'CA0022', 'CA0222'],   }
+		} ), ## end argvts
+		[ ['CA0001|CA0011|CA0111'],['CA0001|CA0011|CA0111'],  ['CA0002|CA0022|CA0222'], ['CA0002|CA0022|CA0222'],  ['CA0001|CA0011|CA0111'] ],
+	'Method \'set_massbank_matrix_object\' works with undef header and return the attended massbank matrix');
+	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	## ARGVTS : $header, $init_pcs, $pcgroups
+	sleep 1 ; print "\n** Test $current_test set_massbank_matrix_object with empty massbankIds **\n" ; $current_test++ ; 
+	is_deeply( set_massbank_matrix_objectTest ( 'massbank', [1,1,2,2,1], 
+		{ '1' => {   'id' => '1',
+		                   'mzmed' => ['273.096','290.118','292.113','580.179'],
+		                   'into' => ['300','300','300','300'],
+		                   'annotation' => {'num_res' => 3},
+		                   'massbank_ids' => ['CA0001', 'CA0011', 'CA0111']    },
+		      '2' => { 'annotation' => {'num_res' => 0},
+		                   'into' => ['300','300','300'],
+		                   'mzmed' => ['289.086','291.096','579.169'],
+		                   'id' => '2',
+		                   'massbank_ids' => [],   }
+		} ), ## end argvts
+		[ [ 'massbank' ], ['CA0001|CA0011|CA0111'],['CA0001|CA0011|CA0111'],  ['No_result_found_on_MassBank'], ['No_result_found_on_MassBank'],  ['CA0001|CA0011|CA0111'] ], 
+	'Method \'set_massbank_matrix_object\' works with empty massbank_ids and return the attended massbank matrix');
+	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	## ARGVTS : $input_matrix_object, $massbank_matrix_object
+	sleep 1 ; print "\n** Test $current_test add_massbank_matrix_to_input_matrix with two matrix **\n" ; $current_test++ ; 
+	is_deeply( add_massbank_matrix_to_input_matrixTest ( 
+		[[ 'pcgroup' ],[1],[1],[2],[2],[1]],
+		[ [ 'massbank' ], ['CA0001|CA0011|CA0111'],['CA0001|CA0011|CA0111'],  ['CA0002|CA0022|CA0222'], ['CA0002|CA0022|CA0222'],  ['CA0001|CA0011|CA0111'] ],
+	), ## end argvts
+		[ ['pcgroup','massbank'],[1,'CA0001|CA0011|CA0111'],[1,'CA0001|CA0011|CA0111'],[2,'CA0002|CA0022|CA0222'],[2,'CA0002|CA0022|CA0222'],[1,'CA0001|CA0011|CA0111'] 
+	], ## end results
+	'Method \'add_massbank_matrix_to_input_matrix\' works with two wel formatted matrix and return the right csv matrix');
+	
+	
+	
+	
+#### #### ##### ###### ################################################ ###### ##### ##### ###### ######
+
+								## END of MAPPER SEQUENCE ## 
+							
+#### #### ##### ###### ################################################ ###### ##### ##### ###### ######
+}
+
+#### #### ##### ###### ################################################ ###### ##### ##### ###### ######
+
+								## START of API SEQUENCE ## 
+							
+#### #### ##### ###### ################################################ ###### ##### ##### ###### ######
+elsif ($sequence eq "API") {
+	
+	## testing connectMassBank on Japan and DE servers.
+	## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	print "\n\t\t\t\t  * * * * * * \n" ;
+	print "\t  * * * - - - Test MassBank API from SOAP - - - * * * \n\n" ;
+	
+
 
 ## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 print "\n** Test 03 connectMassBankJP with real uri and proxy **\n" ;
@@ -696,3 +749,9 @@ is_deeply( getPeakTest( ['PR020003', 'FU000001']),
 
 
 print "\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n" ;
+
+}
+else {
+	croak "Can\'t launch any test : no sequence clearly defined !!!!\n" ;
+}
+
