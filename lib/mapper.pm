@@ -11,8 +11,8 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( get_pcgroup_list get_pcgroups);
-our %EXPORT_TAGS = ( ALL => [qw( get_pcgroup_list get_pcgroups )] );
+our @EXPORT = qw( get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix);
+our %EXPORT_TAGS = ( ALL => [qw( get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix)] );
 
 =head1 NAME
 
@@ -116,6 +116,89 @@ sub get_pcgroup_list {
 }
 
 ### END of SUB
+
+=head2 METHOD set_massbank_matrix_object
+
+	## Description : build the massbank_row under its ref form
+	## Input : $header, $init_mzs, $entries
+	## Output : $massbank_matrix
+	## Usage : my ( $massbank_matrix ) = set_lm_matrix_object( $header, $init_mzs, $entries ) ;
+	
+=cut
+## START of SUB
+sub set_massbank_matrix_object {
+	## Retrieve Values
+    my $self = shift ;
+    my ( $header, $init_pcs, $pcgroups ) = @_ ;
+    
+    my @massbank_matrix = () ;
+    
+    if ( defined $header ) {
+    	my @headers = () ;
+    	push @headers, $header ;
+    	push @massbank_matrix, \@headers ;
+    }
+    ## map foreach listed pc group the massbank ids 
+    foreach my $pc ( @{$init_pcs} ) {
+		my @ids = () ;
+		if ($pcgroups->{$pc}) {
+			my @massbank_ids = @{$pcgroups->{$pc}{'massbank_ids'} } ;
+			my $nb_ids = $pcgroups->{$pc}{'annotation'}{'num_res'} ;
+			
+			my $massbank_ids_string = undef ;
+			
+			## manage empty array
+			if (!defined $nb_ids) { carp "The number of massbank ids is not defined\n" ; }
+			elsif ( $nb_ids > 0 ) { $massbank_ids_string = join('|', @massbank_ids ) ; 	}
+			elsif ( $nb_ids == 0 ) { $massbank_ids_string = 'No_result_found_on_MassBank' ; }
+			
+			push (@ids, $massbank_ids_string) ;
+			push (@massbank_matrix, \@ids) ;
+		}
+		else{
+			carp "This pc group number doesn't exist for mapping\n" ;
+		}
+    	
+    }
+    return(\@massbank_matrix) ;
+}
+## END of SUB
+
+=head2 METHOD add_massbank_matrix_to_input_matrix
+
+	## Description : build a full matrix (input + lm column)
+	## Input : $input_matrix_object, $massbank_matrix_object
+	## Output : $output_matrix_object
+	## Usage : my ( $output_matrix_object ) = add_massbank_matrix_to_input_matrix( $input_matrix_object, $massbank_matrix_object ) ;
+	
+=cut
+## START of SUB
+sub add_massbank_matrix_to_input_matrix {
+	## Retrieve Values
+    my $self = shift ;
+    my ( $input_matrix_object, $massbank_matrix_object ) = @_ ;
+    
+    my @output_matrix_object = () ;
+    my $index_row = 0 ;
+    
+    foreach my $row ( @{$input_matrix_object} ) {
+    	my @init_row = @{$row} ;
+    	
+    	if ( $massbank_matrix_object->[$index_row] ) {
+    		my $dim = scalar(@{$massbank_matrix_object->[$index_row]}) ;
+    		
+    		if ($dim > 1) { warn "the add method can't manage more than one column\n" ;}
+    		my $lm_col =  $massbank_matrix_object->[$index_row][$dim-1] ;
+
+   		 	push (@init_row, $lm_col) ;
+	    	$index_row++ ;
+    	}
+    	push (@output_matrix_object, \@init_row) ;
+    }
+    return(\@output_matrix_object) ;
+}
+## END of SUB
+
 
 
 1 ;
