@@ -62,7 +62,7 @@ sub new {
 ## START of SUB
 sub get_pcgroups {
     my $self = shift;
-    my ( $pcs, $mzs, $ints, $names ) = @_;
+    my ( $pcs, $mzs, $ints ) = @_;
     
     my %pcgroups = () ;
     my $i = 0 ;
@@ -71,9 +71,8 @@ sub get_pcgroups {
     my $num_pcs = scalar(@{$pcs}) ;
     my $num_mzs = scalar(@{$mzs}) ;
     my $num_ints = scalar(@{$ints}) ;
-    my $num_names = scalar(@{$names}) ;
     
-    if ( ($num_pcs == $num_mzs ) and ( $num_mzs == $num_ints ) and  ( $num_ints== $num_names ) ) {
+    if ( ($num_pcs == $num_mzs ) and ( $num_mzs == $num_ints ) ) {
 		my @pcs = @{$pcs} ;
     	
     	foreach my $pc (@{$pcs}) {
@@ -82,13 +81,12 @@ sub get_pcgroups {
 	    	
 	    	push (@{$pcgroups{$pc}->{'mzmed'}}, $mzs->[$i]) if ($mzs->[$i]) ; ## map mzs by pcgroup
 	    	push (@{$pcgroups{$pc}->{'into'}}, $ints->[$i]) if ($ints->[$i]) ; ## map into by pcgroup
-	    	push (@{$pcgroups{$pc}->{'names'}}, $names->[$i]) if ($names->[$i]) ; ## map name by pcgroup
 
 	    	$i++ ;
 	    }
     }
     else {
-    	warn "The different ARRAYS (pcs, mzs, ints, names) doesn't have the same size : mapping is not possible \n!!"
+    	warn "The different ARRAYS (pcs, mzs, ints) doesn't have the same size : mapping is not possible \n!!"
     }
     return (\%pcgroups) ;
 }
