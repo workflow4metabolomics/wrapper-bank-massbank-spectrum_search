@@ -38,12 +38,12 @@ use lib::mapper qw(:ALL) ;
 ## Initialized values
 my ($help, $mzs_file, $col_mz, $col_int, $col_pcgroup, $line_header ) = ( undef, undef, undef, undef, undef,undef, undef ) ;
 my $mass = undef ;
-my ($ion_mode, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef ) ;
+my ($server, $ion_mode, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef ) ;
 my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
 
-## Local values :
-my $server = 'JP' ;
-my $threading_threshold = 6 ;
+## Local values ONLY FOR TEST :
+#my $server = 'JP' ;
+#my $threading_threshold = 6 ;
 
 #=============================================================================
 #                                Manage EXCEPTIONS
@@ -55,12 +55,12 @@ my $threading_threshold = 6 ;
 				"col_pcgroup:i"	=> \$col_pcgroup,
 				"lineheader:i"	=> \$line_header,
 				"mode:s"		=> \$ion_mode, 
-				"instruments:s@"	=> \$instruments, 
-				"max:i"			=> \$max, 
-				"unit:s"		=> \$unit, 
+				"instruments:s@"	=> \$instruments, # advanced 
+				"max:i"			=> \$max, # advanced
+				"unit:s"		=> \$unit, # advanced
 				"tolerance:f"	=> \$tol, 
-				"cutoff:f"		=> \$cutoff,
-				"server:s"		=> \$server, ## by default JP
+				"cutoff:f"		=> \$cutoff, # advanced
+				"server:s"		=> \$server, ## by default JP and # advanced
 				"json:s"		=> \$out_json,
 				"xls:s"			=> \$out_xls,
 				"csv:s"			=> \$out_csv,
@@ -254,7 +254,7 @@ USAGE :
 			-unit [unit or ppm]
 			-tolerance [Tolerance of values of m/z of peaks: 0.3 unit or 50 ppm]
 			-cutoff [Ignore peaks whose intensity is not larger than the value of cutoff. Default: 50)]
-			
+			-server [name of the massbank server : EU or JP only]
 			-json [ouput file for JSON]
 			-xls [ouput file for XLS]
 			-csv [ouput file for TABULAR]
