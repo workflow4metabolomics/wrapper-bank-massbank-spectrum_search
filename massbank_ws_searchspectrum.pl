@@ -32,6 +32,7 @@ use lib::conf  qw( :ALL ) ;
 use lib::massbank_api qw( :ALL ) ;
 use lib::threader qw(:ALL) ;
 use lib::mapper qw(:ALL) ;
+use lib::writter qw(:ALL) ;
 
 
 
@@ -84,7 +85,7 @@ foreach my $conf ( <$binPath/*.cfg> ) {
 foreach my $html_template ( <$binPath/*.tmpl> ) { $CONF->{'HTML_TEMPLATE'} = $html_template ; }
 
 ## Main variables :
-my ($pcs, $mzs, $into) = (undef, undef, undef) ;
+my ($pcs, $mzs, $into, $complete_rows, $pcgroups) = (undef, undef, undef, undef, undef) ;
 
 ## manage a list of masses separate by space only 
 if ( ( defined $mass ) and ( $mass ne "" ) and ( $mass =~ /[\s]+/ ) ) {
@@ -102,6 +103,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	$pcs = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_pcgroup, $is_header, $line_header ) ; ## retrieve pc values on csv
 	$mzs = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_mz, $is_header, $line_header ) ; ## retrieve mz values on csv
 	$into = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_int, $is_header, $line_header ) if ( defined $col_int ); ## retrieve into values on csv // optionnal in input files
+	$complete_rows = $ocsv->parse_csv_object($csv, \$mzs_file) ; ## parse all csv for output csv build
 	
 	## manage input file with no into colunm / init into with a default value of 10
 	if ( !defined $col_int ) {
@@ -114,7 +116,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	
 	## Build pcgroups with their features :
 	my $omap = lib::mapper->new() ;
-	my $pcgroups = $omap->get_pcgroups($pcs, $mzs, $into ) ;
+	$pcgroups = $omap->get_pcgroups($pcs, $mzs, $into ) ;
 	my $pcgroup_list = $omap->get_pcgroup_list($pcs ) ;
 	
 #	print Dumper $pcgroups ;
@@ -207,16 +209,38 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 		}
 	}
 	else {
-		
+		croak "The pcgroup object is not defined\n" ;
 	}
+	print Dumper $pcgroups ;
 	
-	print Dumper $pcgroups
+} ## End of elsif "defined $mzs_file"
+
+
+## Output writting :
+my ( $massbank_matrix ) = ( undef ) ;
+## JSON output
+if (  (defined $out_json) and  (defined $pcgroups) ) {
+	
+	
 	
 }
-
-
-
-
+## CSV OUTPUT
+if (  (defined $out_csv) and  (defined $pcgroups) ) {
+	my $omapper = lib::mapper->new() ;
+	if (defined $mzs_file) {
+		if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $pcgroups ) ; }
+		elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $pcgroups ) ; }
+		$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
+		my $owritter = lib::writter->new() ;
+		$owritter->write_csv_skel(\$out_csv, $massbank_matrix) ;
+	}
+	
+}
+## XLS OUTPUT 
+if (  (defined $out_xls) and  (defined $pcgroups) ) {
+	
+	
+}
 
 
 
