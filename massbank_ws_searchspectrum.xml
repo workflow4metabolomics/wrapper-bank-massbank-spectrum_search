@@ -1,0 +1,174 @@
+<tool id="massbank_ws_searchspectrum" name="MassBank search spectrum" version="2015-08-28">
+  <description>
+       : High Quality Mass Spectral Database.
+  </description>
+  <command interpreter="perl">
+    massbank_ws_searchspectrum.pl
+      -masses="$variableMetadata_in"
+	  #if str($header.header_choice) == "yes":
+        -lineheader="${header.nbheader}"
+      #end if
+	  -col_mz="$col_mass" -col_pcgroup="$col_pcgroup"
+	  #if str($intencity.colint_choice) == "yes":
+        -col_int="${intencity.col_int}"
+      #end if
+	  -mode="$mode" 
+	  
+    #if str($advanced.advanced_settings) == "yes":
+    #end if
+    -csv="$variableMetadata"
+  </command>
+  
+  <inputs>
+    <param name="variableMetadata_in" label="File of masses (format: tabular)" format="tabular" type="data" help="Generally variable metadata file" />
+    <conditional name="header">
+      <param name="header_choice" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="Do you have a header?" help="if 'YES' is selected then enter your number of header lines" />
+      <when value="yes">
+        <param name="nbheader" type="integer" label="Number of header lines" value="1" min="1" max="10" help="number of lines not containing masses"/>
+      </when>
+      <when value="no"/>
+    </conditional>
+    <param name="col_mass" label="Column of masses (MZ)" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+    <param name="col_pcgroup" label="Column of pcgroup" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+    <conditional name="intencity">
+      <param name="colint_choice" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Do you have a column of Intencity?" help="if 'YES' is selected then indicate your column of Intencity" />
+      <when value="yes">
+        <param name="col_int" label="Column of Intencity" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+      </when>
+      <when value="no"/>
+    </conditional>
+    <param name="mode" label="What kind of Ionization Search will be done?" type="select" display="checkboxes" multiple="True" help="">
+      <option value="Positive" selected="True">Positif Mode</option>
+      <option value="Negative" selected="True">Negatif Mode</option>
+    </param>
+	<conditional name="advanced">
+      <param name="advanced_settings" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Show advanced settings?" help="if 'YES' is selected then indicate: " />
+      <when value="yes">
+      </when>
+      <when value="no"/>
+    </conditional>
+  
+  
+  </inputs>
+  
+  <outputs>
+    <data name="variableMetadata" label="${tool.name}_TSV" format="tabular" />
+    <!--<data name="massBankSpectResXls" label="${tool.name}_XLS" format="tabular" />
+    <data name="massBankSpectResJson" label="${tool.name}_JSON" format="vjson" />-->
+  </outputs>
+
+  <help>
+
+.. class:: infomark
+
+**Wrapping**
+  | Marion Landi - FLAME ; PFEM ; INRA ; MetaboHUB (for xml interface and R wrapper)
+  | Franck Giacomoni - PFEM ; INRA ; MetaboHUB (for xml interface and R wrapper)
+
+---------------------------------------------------
+
+.. class:: infomark
+
+**Please cite** If you use this tool, please cite MassBank.
+for `MassBank. &lt;http://www.massbank.jp&gt;`_ :
+  `H. Horai, M. Arita, S. Kanaya, Y. Nihei, T. Ikeda, K. Suwa. Y. Ojima, K. Tanaka, S. Tanaka, K. Aoshima, Y. Oda, Y. Kakazu, M. Kusano, T. Tohge, F. Matsuda, Y. Sawada, M. Yokota Hirai, H. Nakanishi, K. Ikeda, N. Akimoto, T. Maoka, H. Takahashi, T. Ara, N. Sakurai, H. Suzuki, D. Shibata, S. Neumann, T. Iida, K. Tanaka, K. Funatsu, F. Matsuura, T. Soga, R. Taguchi, K. Saito and T. Nishioka, (2010). "MassBank: A public repository for sharing mass spectral data for life sciences." J. Mass Spectrom., 45, 703-714. &lt;http://www.ncbi.nlm.nih.gov/pubmed/20623627&gt;`_
+
+  </help>
+      <!-- [RECOMMANDED] All citations associated to this tool (main citation given above and other references). Can be extracted from the history panel -->
+    <citations>
+        <citation type="doi">10.1002/jms.1777</citation>
+    </citations>
+
+==============
+wsdl_MassBank
+==============
+
+-----------
+Description
+-----------
+
+Finding information in the MassBank project via a web service from masses.
+
+-----------------
+Workflow position
+-----------------
+
+
+.. image:: ./static/images/metabolomics/massbank-ws.png
+        :width: 800
+
+
+-----------
+Input files
+-----------
+
++-------------------------+-----------+
+| Parameter : num + label |  Format   |
++=========================+===========+
+| 1 : variableMetadata    |  tabular  |
++-------------------------+-----------+
+
+File variableMetadata must have at least the 2 following column : 
+	* Id : column to identify masses in the csv/tsv input file
+	* Masses : column with all the masses in the csv/tsv input file
+
+
+----------
+Parameters
+----------
+
+Would you use a file
+	| Choose whether the masses are in a file or entered manually
+	| YES (default) : parameters **File of masses ; Column of Id ; Number of header ; Column of masses** are visible
+	| NO : parameter **Mass of the molecule** is visible
+	|
+
+If 'use file'='YES'
+
+Column of Id
+	| Specify the column number for the id in the csv/tsv input file
+	|
+
+Number of header lines
+	| Number of lines not containing values 
+	|
+
+Column of masses
+	| Specify the column number for the mass in the csv/tsv input file
+	|
+
+If 'use file'='NO'
+
+Mass of the molecule
+	| Specify a list of mass to request one or more mass(es) entered manually
+	| For a masses list, writes : m1,m2,m3
+	| you must separate yours values with coma (,)
+	| dot (.) is for float number
+	|
+
+Delta of mass (mmu)
+	| Specify a delta (+/-) to the mass to search
+
+------------
+Output files
+------------
+
+Two types of files
+	| MassBank_VIEW.HTML : for viewing result via HTML.
+	| MassBank_TSV.tabular : for linking with others modules.
+	| an excel-like output will be available. 
+	
+---------------------------------------------------
+
+
+---------------
+Working example
+---------------
+
+
+.. class:: warningmark
+
+The corresponding "Page" coming soon.
+	
+
+</tool>
