@@ -5,17 +5,19 @@
   <command interpreter="perl">
     massbank_ws_searchspectrum.pl
       -masses="$variableMetadata_in"
-	  #if str($header.header_choice) == "yes":
+      #if str($header.header_choice) == "True":
         -lineheader="${header.nbheader}"
       #end if
-	  -col_mz="$col_mass" -col_pcgroup="$col_pcgroup"
-	  #if str($intencity.colint_choice) == "yes":
+      -col_mz="$col_mass" -col_pcgroup="$col_pcgroup"
+      #if str($intencity.colint_choice) == "True":
         -col_int="${intencity.col_int}"
       #end if
-	  -mode="$mode" 
-	  
-    #if str($advanced.advanced_settings) == "yes":
-    #end if
+      #if str($mode) == "Positive,Negative":
+        -mode="both"
+      #else:
+        -mode="$mode"
+      #end if
+      
     -csv="$variableMetadata"
   </command>
   
