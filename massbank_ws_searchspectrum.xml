@@ -20,6 +20,10 @@
       
       #if str($advanced.advanced_settings) == "False":
         -instruments="all" -max="10" -unit="unit" -tolerance="0.3" -cutoff="50" -server="JP"
+      #else:
+        -instruments="$advanced.instruments" -max="$advanced.max"
+        -unit="$advanced.mz_tolerance.unit" -tolerance="$advanced.mz_tolerance.tolerance"
+        -cutoff="$advanced.cutoff" -server="$advanced.server"
       #end if
 
       -csv="$variableMetadata"
@@ -49,9 +53,58 @@
       <option value="Positive" selected="True">Positif Mode</option>
       <option value="Negative" selected="True">Negatif Mode</option>
     </param>
-	<conditional name="advanced">
-      <param name="advanced_settings" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Show advanced settings?" help="if 'YES' is selected then indicate: " />
+    <conditional name="advanced">
+      <param name="advanced_settings" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Show advanced settings?" help="if 'NO' is selected then defaults values are: instruments => all ; max => 10 ; unit => unit ; tolerance => 0.3 ; cutoff => 50 ; server => JP" />
       <when value="yes">
+        <param name="instruments" label="What kind of Instruments will be use?" type="select" display="checkboxes" multiple="True" help="">
+          <option value="APCI-ITFT">APCI-ITFT</option>
+          <option value="APCI-ITTOF">APCI-ITTOF</option>
+          <option value="CE-ESI-TOF">CE-ESI-TOF</option>
+          <option value="CI-B">CI-B</option>
+          <option value="EI-B">EI-B</option>
+          <option value="EI-EBEB">EI-EBEB</option>
+          <option value="ESI-ITFT">ESI-ITFT</option>
+          <option value="ESI-ITTOF">ESI-ITTOF</option>
+          <option value="FAB-B">FAB-B</option>
+          <option value="FAB-EB">FAB-EB</option>
+          <option value="FAB-EBEB">FAB-EBEB</option>
+          <option value="FD-B">FD-B</option>
+          <option value="FI-B">FI-B</option>
+          <option value="GC-EI-QQ">GC-EI-QQ</option>
+          <option value="GC-EI-TOF">GC-EI-TOF</option>
+          <option value="LC-APCI-QTOF">LC-APCI-QTOF</option>
+          <option value="LC-APPI-QQ">LC-APPI-QQ</option>
+          <option value="LC-ESI-IT">LC-ESI-IT</option>
+          <option value="LC-ESI-ITFT">LC-ESI-ITFT</option>
+          <option value="LC-ESI-ITTOF">LC-ESI-ITTOF</option>
+          <option value="LC-ESI-Q">LC-ESI-Q</option>
+          <option value="LC-ESI-QFT">LC-ESI-QFT</option>
+          <option value="LC-ESI-QIT">LC-ESI-QIT</option>
+          <option value="LC-ESI-QQ">LC-ESI-QQ</option>
+          <option value="LC-ESI-QTOF">LC-ESI-QTOF</option>
+          <option value="LC-ESI-TOF">LC-ESI-TOF</option>
+          <option value="MALDI-QIT">MALDI-QIT</option>
+          <option value="MALDI-TOF">MALDI-TOF</option>
+          <option value="MALDI-TOFTOF">MALDI-TOFTOF</option>
+        </param>
+        <param name="max" type="integer" label="Maximum number of search results" value="1" min="0" max="50" help="'0' means unspecified and then all results are obtained."/>
+        <conditional name="mz_tolerance">
+          <param name="unit" label="Unit of tolerance" type="select" display="radio" help="">
+            <option value="unit">unit</option>
+            <option value="ppm">ppm</option>
+          </param>
+          <when value="unit">
+            <param name="tolerance" label="Tolerance of values of m/z of peaks (in unit)" type="float" value="0.3" min="0" max="10" help="Default value is 0.3 Da."/>
+          </when>
+          <when value="ppm">
+            <param name="tolerance" label="Tolerance of values of m/z of peaks (in ppm)" type="float" value="50" min="0" max="5000" help="Default value is 50 ppm."/>
+          </when>
+        </conditional>
+        <param name="cutoff" label="Ignore peaks whose intensity is not larger than the value of cutoff" type="float" value="50" min="0" max="5000" help="Ignore peaks whose intensity is not larger than the value of cutoff."/>
+        <param name="server " label="Which MassBank server start searching?" type="select" display="radio" help="">
+          <option value="JP">Japon (JP)</option>
+          <option value="EU">Europe (EU)</option>
+        </param>
       </when>
       <when value="no"/>
     </conditional>
