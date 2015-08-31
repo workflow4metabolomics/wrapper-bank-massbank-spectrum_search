@@ -18,7 +18,13 @@
         -mode="$mode"
       #end if
       
-    -csv="$variableMetadata"
+      #if str($advanced.advanced_settings) == "False":
+        -instruments="all" -max="10" -unit="unit" -tolerance="0.3" -cutoff="50" -server="JP"
+      #end if
+
+      -csv="$variableMetadata"
+      -xls="$massBankSpectResXls"
+      -json="massBankSpectResJson"
   </command>
   
   <inputs>
@@ -55,8 +61,8 @@
   
   <outputs>
     <data name="variableMetadata" label="${tool.name}_TSV" format="tabular" />
-    <!--<data name="massBankSpectResXls" label="${tool.name}_XLS" format="tabular" />
-    <data name="massBankSpectResJson" label="${tool.name}_JSON" format="vjson" />-->
+    <data name="massBankSpectResXls" label="${tool.name}_XLS" format="tabular" />
+    <data name="massBankSpectResJson" label="${tool.name}_JSON" format="vjson" />
   </outputs>
 
   <help>
