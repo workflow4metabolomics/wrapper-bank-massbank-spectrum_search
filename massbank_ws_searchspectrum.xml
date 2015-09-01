@@ -90,7 +90,7 @@
         <param name="max" type="integer" label="Maximum number of search results" value="1" min="0" max="50" help="'0' means unspecified and then all results are obtained."/>
         <conditional name="mz_tolerance">
           <param name="unit" label="Unit of tolerance" type="select" display="radio" help="">
-            <option value="unit">unit</option>
+            <option value="unit" selected="True">unit</option>
             <option value="ppm">ppm</option>
           </param>
           <when value="unit">
@@ -102,7 +102,7 @@
         </conditional>
         <param name="cutoff" label="Ignore peaks whose intensity is not larger than the value of cutoff" type="float" value="50" min="0" max="5000" help="Ignore peaks whose intensity is not larger than the value of cutoff."/>
         <param name="server " label="Which MassBank server start searching?" type="select" display="radio" help="">
-          <option value="JP">Japon (JP)</option>
+          <option value="JP" selected="True">Japon (JP)</option>
           <option value="EU">Europe (EU)</option>
         </param>
       </when>
