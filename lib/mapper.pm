@@ -11,8 +11,8 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix);
-our %EXPORT_TAGS = ( ALL => [qw( get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix)] );
+our @EXPORT = qw( get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json);
+our %EXPORT_TAGS = ( ALL => [qw( get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json)] );
 
 =head1 NAME
 
@@ -199,6 +199,51 @@ sub add_massbank_matrix_to_input_matrix {
 }
 ## END of SUB
 
+=head2 METHOD map_res_to_generic_json
+
+	## Description : build json structure with all massbank results
+	## Input : $mzs, $pcs, $pcgroups_results
+	## Output : $json_scalar
+	## Usage : my ( $json_scalar ) = add_massbank_matrix_to_input_matrix( $mzs, $pcs, $pcgroups_results ) ;
+	
+=cut
+## START of SUB
+sub map_pc_to_generic_json {
+    my $self = shift;
+    my ( $pcs, $pcgroups ) = @_ ;
+    
+
+    my @json_scalar = () ;
+    ## JSON DESIGN
+#   [
+#		{ "searchResult": {  
+#			"results": [ { "formula":"C22H22N4O5",  "id":"JP006651", "title":"BENZAMIDE; EI-B; MS",  "score":"0.933207676010", "exactMass":"422.15902"}, ... ],
+#			"numResults":20 },
+#		"id":"comp0" }, ...
+#	]
+    
+    foreach my $pc (@{$pcs}) {
+		
+    	my $pc_res = {} ;
+    	my $num_res = undef ;
+    	
+    	if ($pcgroups->{$pc}) {
+    		$num_res = $pcgroups->{$pc}{'annotation'}{'num_res'} if ( $pcgroups->{$pc}{'annotation'}{'num_res'} >= 0 ) ;
+    		$pc_res->{'searchResult'}{'numResults'} = $num_res ;
+    		my @results = @{$pcgroups->{$pc}{'annotation'}{'res'}} if ( $pcgroups->{$pc}{'annotation'}{'res'} );
+    		$pc_res->{'searchResult'}{'results'} = \@results ;
+    		$pc_res->{'id'} = $pc if ( $pc >= 0 ); ## id is a pc group_id for the moment
+    		
+    		push (@json_scalar, $pc_res) ;
+    	}
+    	else {
+    		warn "The pc group $pc doesn't exist in results !" ;
+    	}    	
+    }
+    
+	return(\@json_scalar) ;
+}
+## END of SUB
 
 
 1 ;
