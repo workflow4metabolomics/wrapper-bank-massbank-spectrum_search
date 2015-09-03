@@ -56,7 +56,7 @@ my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
 				"col_pcgroup:i"	=> \$col_pcgroup,
 				"lineheader:i"	=> \$line_header,
 				"mode:s"		=> \$ion_mode, 
-				"instruments:s@"	=> \$instruments, # advanced 
+				"instruments:s"	=> \$instruments, # advanced -> to transform into string with comma => done !
 				"max:i"			=> \$max, # advanced
 				"unit:s"		=> \$unit, # advanced
 				"tolerance:f"	=> \$tol, 
@@ -104,7 +104,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	$mzs = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_mz, $is_header, $line_header ) ; ## retrieve mz values on csv
 	$into = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_int, $is_header, $line_header ) if ( defined $col_int ); ## retrieve into values on csv // optionnal in input files
 	$complete_rows = $ocsv->parse_csv_object($csv, \$mzs_file) ; ## parse all csv for output csv build
-	
+
 	## manage input file with no into colunm / init into with a default value of 10
 	if ( !defined $col_int ) {
 		my $nb_mzs = scalar(@{$mzs}) ;
@@ -112,6 +112,12 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 		my $nb_intos = scalar(@intos) ;
 		if ($nb_intos == $nb_mzs) { $into = \@intos ;	}
 		else { carp "A difference exists between intensity and mz values\n" }
+	}
+	
+	## manage instruments string to array_ref
+	if (defined $instruments ) {
+		my @instruments = split(/,/, $instruments) ;
+		$instruments = \@instruments ;
 	}
 	
 	
