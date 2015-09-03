@@ -146,7 +146,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 			
 			for (1..$NBTHREADS) {
 				my $oworker = lib::threader->new ;
-			    push @threads, threads->create(sub { $oworker->searchSpectrumWorker($Qworks, $server) ; } ) ;
+			    push @threads, threads->create(sub { $oworker->searchSpectrumWorker($Qworks, $server, $ion_mode, $instruments, $max, $unit, $tol, $cutoff) ; } ) ;
 			}
 			
 			$Qworks->enqueue(@queries);
