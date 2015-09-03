@@ -52,11 +52,11 @@ my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
 &GetOptions ( 	"help|h"     	=> \$help,       # HELP
 				"masses:s"		=> \$mzs_file,
 				"col_mz:i"		=> \$col_mz,
-				"col_int:i"		=> \$col_int,
+				"col_int:i"		=> \$col_int, ## optionnal
 				"col_pcgroup:i"	=> \$col_pcgroup,
 				"lineheader:i"	=> \$line_header,
 				"mode:s"		=> \$ion_mode, 
-				"instruments:s@"	=> \$instruments, # advanced 
+				"instruments:s"	=> \$instruments, # advanced -> to transform into string with comma => done !
 				"max:i"			=> \$max, # advanced
 				"unit:s"		=> \$unit, # advanced
 				"tolerance:f"	=> \$tol, 
@@ -104,13 +104,20 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	$mzs = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_mz, $is_header, $line_header ) ; ## retrieve mz values on csv
 	$into = $ocsv->get_value_from_csv_multi_header( $csv, $mzs_file, $col_int, $is_header, $line_header ) if ( defined $col_int ); ## retrieve into values on csv // optionnal in input files
 	$complete_rows = $ocsv->parse_csv_object($csv, \$mzs_file) ; ## parse all csv for output csv build
-	
+
 	## manage input file with no into colunm / init into with a default value of 10
 	if ( !defined $col_int ) {
 		my $nb_mzs = scalar(@{$mzs}) ;
-		my @intos = map {10} (0..$nb_mzs) ;
+		my @intos = map {10} (0..$nb_mzs-1) ;
 		my $nb_intos = scalar(@intos) ;
 		if ($nb_intos == $nb_mzs) { $into = \@intos ;	}
+		else { carp "A difference exists between intensity and mz values\n" }
+	}
+	
+	## manage instruments string to array_ref
+	if (defined $instruments ) {
+		my @instruments = split(/,/, $instruments) ;
+		$instruments = \@instruments ;
 	}
 	
 	
@@ -146,7 +153,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 			
 			for (1..$NBTHREADS) {
 				my $oworker = lib::threader->new ;
-			    push @threads, threads->create(sub { $oworker->searchSpectrumWorker($Qworks, $server) ; } ) ;
+			    push @threads, threads->create(sub { $oworker->searchSpectrumWorker($Qworks, $server, $ion_mode, $instruments, $max, $unit, $tol, $cutoff) ; } ) ;
 			}
 			
 			$Qworks->enqueue(@queries);
@@ -158,7 +165,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 			my $seconds = $time_end-$time_start ;
 			print "\n------  Time used in multithreading mode : $seconds seconds --------\n\n" ;
 			
-			print Dumper @Qresults ;
+#			print Dumper @Qresults ;
 			
 			## controle number of returned queries :
 			my $massbank_results_num = 0 ;
@@ -225,23 +232,26 @@ if (  (defined $out_json) and  (defined $pcgroups) ) {
 	
 }
 ## CSV OUTPUT
-if (  (defined $out_csv) and  (defined $pcgroups) ) {
+if (  (defined $out_csv) and  (defined $pcgroups) and  (defined $pcs) ) {
 	my $omapper = lib::mapper->new() ;
-	if (defined $mzs_file) {
-		if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $pcgroups ) ; }
-		elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $pcgroups ) ; }
-		$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
-		my $owritter = lib::writter->new() ;
-		$owritter->write_csv_skel(\$out_csv, $massbank_matrix) ;
-	}
-	
+	if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $pcgroups ) ; }
+	elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $pcgroups ) ; }
+	$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
+	my $owritter = lib::writter->new() ;
+	$owritter->write_csv_skel(\$out_csv, $massbank_matrix) ;
 }
 ## XLS OUTPUT 
-if (  (defined $out_xls) and  (defined $pcgroups) ) {
-	
-	
+if (  (defined $out_xls) and  (defined $pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+	my $owritter = lib::writter->new() ;
+	$owritter->write_xls_skel(\$out_xls, $mzs, $pcs, $pcgroups) ;
 }
-
+## JSON OUTPUT 
+if (  (defined $out_json) and  (defined $pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+	my $omapper = lib::mapper->new() ;
+	my $json_scalar = $omapper->map_pc_to_generic_json($pcs, $pcgroups) ;
+	my $owritter = lib::writter->new() ;
+	$owritter->write_json_skel(\$out_json, $json_scalar) ;
+}
 
 
 
