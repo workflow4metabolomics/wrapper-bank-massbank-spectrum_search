@@ -165,7 +165,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 			my $seconds = $time_end-$time_start ;
 			print "\n------  Time used in multithreading mode : $seconds seconds --------\n\n" ;
 			
-			print Dumper @Qresults ;
+#			print Dumper @Qresults ;
 			
 			## controle number of returned queries :
 			my $massbank_results_num = 0 ;
@@ -232,23 +232,26 @@ if (  (defined $out_json) and  (defined $pcgroups) ) {
 	
 }
 ## CSV OUTPUT
-if (  (defined $out_csv) and  (defined $pcgroups) ) {
+if (  (defined $out_csv) and  (defined $pcgroups) and  (defined $pcs) ) {
 	my $omapper = lib::mapper->new() ;
-	if (defined $mzs_file) {
-		if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $pcgroups ) ; }
-		elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $pcgroups ) ; }
-		$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
-		my $owritter = lib::writter->new() ;
-		$owritter->write_csv_skel(\$out_csv, $massbank_matrix) ;
-	}
-	
+	if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $pcgroups ) ; }
+	elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $pcgroups ) ; }
+	$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
+	my $owritter = lib::writter->new() ;
+	$owritter->write_csv_skel(\$out_csv, $massbank_matrix) ;
 }
 ## XLS OUTPUT 
-if (  (defined $out_xls) and  (defined $pcgroups) ) {
-	
-	
+if (  (defined $out_xls) and  (defined $pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+	my $owritter = lib::writter->new() ;
+	$owritter->write_xls_skel(\$out_xls, $mzs, $pcs, $pcgroups) ;
 }
-
+## JSON OUTPUT 
+if (  (defined $out_json) and  (defined $pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+	my $omapper = lib::mapper->new() ;
+	my $json_scalar = $omapper->map_pc_to_generic_json($pcs, $pcgroups) ;
+	my $owritter = lib::writter->new() ;
+	$owritter->write_json_skel(\$out_json, $json_scalar) ;
+}
 
 
 
