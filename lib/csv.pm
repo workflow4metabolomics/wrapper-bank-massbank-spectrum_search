@@ -68,9 +68,9 @@ sub get_csv_object {
     my ( $separator ) = @_ ;
     
 #    my $csv = Text::CSV->new({'sep_char' => "$separator"});
-    my $csv = Text::CSV->new ( {'sep_char' => "$separator", binary => 1 } )  # should set binary attribute.
+    my $csv = Text::CSV->new ( {'sep_char' => "$separator", binary => 1,  } )  # should set binary attribute.
     	or die "Cannot use CSV: ".Text::CSV->error_diag ();
-    
+
     return($csv) ;
 }
 ## END of SUB
@@ -143,13 +143,15 @@ sub get_value_from_csv_multi_header {
 	
 	while (<CSV>) {
 		$line++ ;
-	    chomp $_ ;
+	    chop $_ ;
 		# file has a header
 		if ( defined $is_header and $is_header eq 'yes') { if ($line <= $nb_header) { next ; } }
 		# parsing the targeted column
 	    if ( $csv->parse($_) ) {
 	        my @columns = $csv->fields();
-	        push ( @value, $columns[$column] ) ;
+	        my $value = $columns[$column] ;
+	        $value =~s/\r|\n// ;
+	        push ( @value,  $value ) ;
 	    }
 	    else {
 	        my $err = $csv->error_input;
