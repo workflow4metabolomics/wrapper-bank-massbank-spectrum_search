@@ -87,21 +87,21 @@
           <option value="MALDI-TOF">MALDI-TOF</option>
           <option value="MALDI-TOFTOF">MALDI-TOFTOF</option>
         </param>
-        <param name="max" type="integer" label="Maximum number of search results" value="1" min="0" max="50" help="'0' means unspecified and then all results are obtained."/>
+        <param name="max" type="integer" label="Maximum number of search results" value="10" min="0" max="50" help="'0' means unspecified and then all results are obtained."/>
         <conditional name="mz_tolerance">
           <param name="unit" label="Unit of tolerance" type="select" display="radio" help="">
             <option value="unit" selected="True">unit</option>
             <option value="ppm">ppm</option>
           </param>
           <when value="unit">
-            <param name="tolerance" label="Tolerance of values of m/z of peaks (in unit)" type="float" value="0.3" min="0" max="10" help="Default value is 0.3 Da."/>
+            <param name="tolerance" label="Tolerance of values of m/z of peaks (in unit)" type="float" value="0.3" min="0" max="10" help="Default value is 0.3 unit."/>
           </when>
           <when value="ppm">
-            <param name="tolerance" label="Tolerance of values of m/z of peaks (in ppm)" type="float" value="50" min="0" max="5000" help="Default value is 50 ppm."/>
+            <param name="tolerance" label="Tolerance of values of m/z of peaks (in ppm)" type="integer" value="50" min="0" max="5000" help="Default value is 50 ppm."/>
           </when>
         </conditional>
         <param name="cutoff" label="Ignore peaks whose intensity is not larger than the value of cutoff" type="float" value="50" min="0" max="5000" help="Ignore peaks whose intensity is not larger than the value of cutoff."/>
-        <param name="server " label="Which MassBank server start searching?" type="select" display="radio" help="">
+        <param name="server" label="Which MassBank server start searching?" type="select" display="radio" help="">
           <option value="JP" selected="True">Japon (JP)</option>
           <option value="EU">Europe (EU)</option>
         </param>
