@@ -52,7 +52,7 @@ my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
 &GetOptions ( 	"help|h"     	=> \$help,       # HELP
 				"masses:s"		=> \$mzs_file,
 				"col_mz:i"		=> \$col_mz,
-				"col_int:i"		=> \$col_int,
+				"col_int:i"		=> \$col_int, ## optionnal
 				"col_pcgroup:i"	=> \$col_pcgroup,
 				"lineheader:i"	=> \$line_header,
 				"mode:s"		=> \$ion_mode, 
@@ -108,9 +108,10 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	## manage input file with no into colunm / init into with a default value of 10
 	if ( !defined $col_int ) {
 		my $nb_mzs = scalar(@{$mzs}) ;
-		my @intos = map {10} (0..$nb_mzs) ;
+		my @intos = map {10} (0..$nb_mzs-1) ;
 		my $nb_intos = scalar(@intos) ;
 		if ($nb_intos == $nb_mzs) { $into = \@intos ;	}
+		else { carp "A difference exists between intensity and mz values\n" }
 	}
 	
 	
