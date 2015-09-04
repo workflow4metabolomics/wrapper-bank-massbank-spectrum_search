@@ -116,8 +116,13 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	
 	## manage instruments string to array_ref
 	if (defined $instruments ) {
-		my @instruments = split(/,/, $instruments) ;
-		$instruments = \@instruments ;
+		if ($instruments eq '') { ## in xml : can select nothing...
+			$instruments = ['all'] ;
+		}
+		else {
+			my @instruments = split(/,/, $instruments) ;
+			$instruments = \@instruments ;
+		}
 	}
 	
 	
