@@ -72,7 +72,7 @@ sub new {
 ## START of SUB
 sub searchSpectrumWorker {
 	my $self = shift;
-	my ($Qworks, $server) = @_ ;
+	my ($Qworks, $server, $ion_mode, $instruments, $max, $unit, $tol, $cutoff) = @_ ;
 	my @results = () ;
 	my @fake = () ;
 
@@ -82,7 +82,7 @@ sub searchSpectrumWorker {
 	while(my $pcgroup = $Qworks->dequeue) {
 #		print Dumper $pcgroup ;
 	    my $oquery= lib::massbank_api->new() ;
-		my ($result, $num) = eval{$oquery->searchSpectrum($soap, $pcgroup->{'id'}, $pcgroup->{'mzmed'}, $pcgroup->{'into'}, undef, undef, 5) ; } or die;
+		my ($result, $num) = eval{$oquery->searchSpectrum($soap, $pcgroup->{'id'}, $pcgroup->{'mzmed'}, $pcgroup->{'into'}, $ion_mode, $instruments, $max, $unit, $tol, $cutoff) ; } or die;
 #		print "The query send to massbank return $num entries...\n" ;
 #		print Dumper $result ;
 		if ($num >= 0 ) {
@@ -188,39 +188,39 @@ sub threading_searchSpectrum {
 =cut
 ## START of SUB
 sub thread_and_queue_searchSpectrum {
-    my $self = shift;
-    my ( ) = @_;
-    
-    our $THREADS = 10;
-	my $Qwork = new Thread::Queue;
-	my $Qresults = new Thread::Queue;
-	
-	## Create the pool of workers
-	my @pool = map{
-	    threads->create( \&worker, $Qwork, $Qresults )
-	} 1 .. $THREADS;
-	
-	## Get the work items (from somewhere)
-	## and queue them up for the workers
-	while( my $workItem = getWorkItems() ) {
-	    $Qwork->enqueue( $workItem );
-	}
-	
-	## Tell the workers there are no more work items
-	$Qwork->enqueue( (undef) x $THREADS );
-	
-	## Process the results as they become available
-	## until all the workers say they are finished.
-	for ( 1 .. $THREADS ) {
-	    while( my $result = $Qresults->dequeue ) {
-	
-	        ## Do something with the result ##
-	        print $result;
-	    }
-	}
-	
-	## Clean up the threads
-	$_->join for @pool;
+#    my $self = shift;
+#    my ( ) = @_;
+#    
+#    our $THREADS = 10;
+#	my $Qwork = new Thread::Queue;
+#	my $Qresults = new Thread::Queue;
+#	
+#	## Create the pool of workers
+#	my @pool = map{
+#	    threads->create( \&worker, $Qwork, $Qresults )
+#	} 1 .. $THREADS;
+#	
+#	## Get the work items (from somewhere)
+#	## and queue them up for the workers
+#	while( my $workItem = getWorkItems() ) {
+#	    $Qwork->enqueue( $workItem );
+#	}
+#	
+#	## Tell the workers there are no more work items
+#	$Qwork->enqueue( (undef) x $THREADS );
+#	
+#	## Process the results as they become available
+#	## until all the workers say they are finished.
+#	for ( 1 .. $THREADS ) {
+#	    while( my $result = $Qresults->dequeue ) {
+#	
+#	        ## Do something with the result ##
+#	        print $result;
+#	    }
+#	}
+#	
+#	## Clean up the threads
+#	$_->join for @pool;
 }
 ## END of SUB
 
