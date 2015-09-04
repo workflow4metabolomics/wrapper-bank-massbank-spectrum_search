@@ -28,7 +28,7 @@
 
       -csv="$variableMetadata"
       -xls="$massBankSpectResXls"
-      -json="massBankSpectResJson"
+      -json="$massBankSpectResJson"
   </command>
   
   <inputs>
@@ -100,7 +100,7 @@
             <param name="tolerance" label="Tolerance of values of m/z of peaks (in ppm)" type="integer" value="50" min="0" max="5000" help="Default value is 50 ppm."/>
           </when>
         </conditional>
-        <param name="cutoff" label="Ignore peaks whose intensity is not larger than the value of cutoff" type="float" value="50" min="0" max="5000" help="Ignore peaks whose intensity is not larger than the value of cutoff."/>
+        <param name="cutoff" label="Ignore peaks whose intensity is not larger than the value of cutoff" type="integer" value="50" min="0" max="5000" help="Ignore peaks whose intensity is not larger than the value of cutoff."/>
         <param name="server" label="Which MassBank server start searching?" type="select" display="radio" help="">
           <option value="JP" selected="True">Japon (JP)</option>
           <option value="EU">Europe (EU)</option>
@@ -131,6 +131,7 @@
 .. class:: infomark
 
 **Please cite** If you use this tool, please cite MassBank.
+
 for `MassBank. &lt;http://www.massbank.jp&gt;`_ :
   `H. Horai, M. Arita, S. Kanaya, Y. Nihei, T. Ikeda, K. Suwa. Y. Ojima, K. Tanaka, S. Tanaka, K. Aoshima, Y. Oda, Y. Kakazu, M. Kusano, T. Tohge, F. Matsuda, Y. Sawada, M. Yokota Hirai, H. Nakanishi, K. Ikeda, N. Akimoto, T. Maoka, H. Takahashi, T. Ara, N. Sakurai, H. Suzuki, D. Shibata, S. Neumann, T. Iida, K. Tanaka, K. Funatsu, F. Matsuura, T. Soga, R. Taguchi, K. Saito and T. Nishioka, (2010). "MassBank: A public repository for sharing mass spectral data for life sciences." J. Mass Spectrom., 45, 703-714. &lt;http://www.ncbi.nlm.nih.gov/pubmed/20623627&gt;`_
 
