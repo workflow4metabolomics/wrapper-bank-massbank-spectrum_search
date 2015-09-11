@@ -72,7 +72,9 @@ sub connectMassBankJP() {
 		-> uri('http://api.massbank')
 		-> proxy('http://www.massbank.jp/api/services/MassBankAPI?wsdl', timeout => 100 )
 		-> on_fault(sub { my($soap, $res) = @_; 
-         die ref $res ? $res->faultstring : $soap->transport->status, "\n";});
+         eval { die ref $res ? $res->faultstring : $soap->transport->status, "\n"};
+         return ref $res ? $res : new SOAP::SOM ;
+         });
 	
 	return ($osoap);
 }
@@ -269,7 +271,7 @@ sub searchSpectrum() {
 	}
 	
 	my @dats = () ;
-	my %ret = ();
+	my %ret = (); # %ret = {'res' => [], 'num_res' => int, 'pcgroup_id'=> int }
 	my $numdats = 0 ;
     
     if ( defined $mzs ) {
