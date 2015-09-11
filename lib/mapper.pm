@@ -80,8 +80,15 @@ sub get_pcgroups {
 	    	if ( ! $pcgroups{$pc} ) { $pcgroups{$pc}->{'id'} = $pc ;	$pcgroups{$pc}->{'annotation'} = {} ; $pcgroups{$pc}->{'massbank_ids'} = [] ; }
 	    	
 	    	push (@{$pcgroups{$pc}->{'mzmed'}}, $mzs->[$i]) if ($mzs->[$i]) ; ## map mzs by pcgroup
-	    	push (@{$pcgroups{$pc}->{'into'}}, $ints->[$i]) if ($ints->[$i]) ; ## map into by pcgroup
 
+	    	if ($ints->[$i] > 0 ) { 	push (@{$pcgroups{$pc}->{'into'}}, $ints->[$i])  ; ## map into by pcgroup
+	    	}
+	    	elsif ($ints->[$i] == 0) {
+	    		push (@{$pcgroups{$pc}->{'into'}}, $ints->[$i])  ; ## map into by pcgroup even value is 0
+	    	}
+	    	else {
+	    		warn "Undefined value found in pcgroups array\n" ;
+	    	}
 	    	$i++ ;
 	    }
     }
