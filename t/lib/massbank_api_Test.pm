@@ -18,6 +18,9 @@ use lib::massbank_api qw( :ALL ) ;
 use lib::threader qw( :ALL ) ;
 use lib::mapper qw( :ALL ) ;
 
+
+my $server = 'JP' ;
+
 sub connectMassBankTest {
 	my ($uri, $proxy) = @_ ;
     my $oBih = lib::massbank_api->new() ;
@@ -43,7 +46,7 @@ sub getInstrumentTypesTest {
     my $oBih = lib::massbank_api->new() ;
     
     if ($server eq 'JP') { 		($osoap) = $oBih->connectMassBankJP() ; }
-    elsif ($server eq 'DE') {	($osoap) = $oBih->connectMassBankDE() ; }
+    elsif ($server eq 'EU') {	($osoap) = $oBih->connectMassBankDE() ; }
     else {						croak "Can't call an unknown server through MassBank API\n" ; }
     
     my $res = $oBih->getInstrumentTypes($osoap) ;
@@ -65,8 +68,9 @@ sub searchSpectrumTest {
 	my ($mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff) = @_ ;
 	my $pcgroup_id = 1 ;
 	my $oBih = lib::massbank_api->new() ;
-    my ($osoap) = $oBih->selectMassBank('DE') ;
+    my ($osoap) = $oBih->selectMassBank($server) ;
     my ($res, $num) = $oBih->searchSpectrum($osoap, $pcgroup_id, $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff) ;
+    print Dumper $res ;
     return($res) ;
 }
 
@@ -74,7 +78,7 @@ sub searchSpectrumNBTest {
 	my ($mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff) = @_ ;
 	my $pcgroup_id = 1 ;
 	my $oBih = lib::massbank_api->new() ;
-    my ($osoap) = $oBih->selectMassBank('DE') ;
+    my ($osoap) = $oBih->selectMassBank($server) ;
     my ($res, $num) = $oBih->searchSpectrum($osoap, $pcgroup_id, $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff) ;
     return($num) ;
 }
@@ -83,7 +87,7 @@ sub getPeakTest {
 	my ($ids) = @_ ;
 	
 	my $oBih = lib::massbank_api->new() ;
-    my ($osoap) = $oBih->selectMassBank('DE') ;
+    my ($osoap) = $oBih->selectMassBank($server) ;
     my ($res) = $oBih->getPeak($osoap, $ids) ;
     return($res) ;
 }
@@ -94,7 +98,7 @@ sub threading_methods_getRecordInfoTest {
 	my $results = undef ;
 	my $othreads = lib::threader->new() ;
 	my $oquery = lib::massbank_api->new() ;
-	my ($osoap) = $oquery->selectMassBank('DE') ;
+	my ($osoap) = $oquery->selectMassBank($server) ;
 	$results = $othreads->threading_getRecordInfo($osoap, $ids) ; 
 	return($results) ;
 }
