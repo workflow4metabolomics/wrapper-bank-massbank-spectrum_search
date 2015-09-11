@@ -269,7 +269,7 @@ sub searchSpectrum() {
 	}
 	
 	my @dats = () ;
-	my %ret = ();
+	my %ret = (); # %ret = {'res' => [], 'num_res' => int, 'pcgroup_id'=> int }
 	my $numdats = 0 ;
     
     if ( defined $mzs ) {
