@@ -14,17 +14,99 @@ use lib $FindBin::Bin ;
 my $binPath = $FindBin::Bin ;
 use lib::massbank_api_Test qw( :ALL ) ;
 use lib::massbank_mapper_Test qw( :ALL ) ;
+use lib::massbank_main_Test qw( :ALL ) ;
 
 
 ## To launch the right sequence : API, MAPPER, THREADER, ...
-my $sequence = 'MAPPER' ; 
+#my $sequence = 'MAPPER' ; 
+my $sequence = 'MAIN' ; 
 my $current_test = 1 ;
+my $server = 'JP' ;
+
+if ($sequence eq "MAIN") {
+	print "\n\t\t\t\t  * * * * * * \n" ;
+	print "\t  * * * - - - Test MassBank Main script - - - * * * \n\n" ;
+		## Test NORMAL file  => OK
+#	    ok( run_main_massbank_pl(
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/pcgrp_annot.tsv', 
+#	    	1, 14, 7, 1, 
+#	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'JP',
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.json', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.csv', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.xls'),
+#	    'Main script massbank_ws_searchspectrum.pl with is running and manage normal data (mz, ) ' );
+	    
+	    ## Test BUG file wih relative intensities => OK
+#	    ok( run_main_massbank_pl(
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/261-pcgroups-mz-relative_int.tsv', 
+#	    	'2', '1', '3', '1', 
+#	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'JP',
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.json', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.csv', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.xls'),
+#	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
+	    
+	     ## Test BUG file wih real intensities (>10000) => OK
+#	    ok( run_main_massbank_pl(
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/2214-mz-int-pcgroups.tsv', 
+#	    	'1', '3', '2', '1', 
+#	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'JP',
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.json', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.csv', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.xls'),
+#	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
+	    
+	    ## Test BUG file wih relative intensities and ppm / 15 / 5 => OK
+#	    ok( run_main_massbank_pl(
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/261-pcgroups-mz-relative_int.tsv', 
+#	    	'2', '1', '3', '1', 
+#	    	'Positive', 'all', 2, 'ppm', 15, 5, 'JP',
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.json', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.csv', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.xls'),
+#	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
+	    
+	    ## Test BUG file wih real intensities (>10000) and ppm / 15 / 5 + long file => OK
+#	    ok( run_main_massbank_pl(
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/2214-mz-int-pcgroups.tsv', 
+#	    	'1', '3', '2', '1', 
+#	    	'Positive', 'all', 2, 'ppm', 15, 5, 'JP',
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.json', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.csv', 
+#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.xls'),
+#	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, int, ...)' );
+	    
+	    ## Test BUG file wih real intensities (>10000) and ppm / 15 / 5 + long file -> parameters c5b5ac363f7bdb2d  => OK
+	    ok( run_main_massbank_pl(
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/2214-mz-int-pcgroups.tsv', 
+	    	'1', '3', '2', '1', 
+	    	'Positive', "LC-ESI-IT,LC-ESI-ITFT,LC-ESI-ITTOF,LC-ESI-Q,LC-ESI-QFT,LC-ESI-QIT,LC-ESI-QQ,LC-ESI-QTOF,LC-ESI-TOF", 10, 'ppm', 15, 5, 'JP',
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out6.json', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out6.csv', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out6.xls'),
+	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, int, ...)' );
+	    
+}
 
 
+#-masses 
+#-col_mz 1
+#-col_pcgroup 14
+#-col_int 7
+#-lineheader 1
+#-mode Positive
+#-instruments all
+#-max 2
+#-unit unit
+#-tolerance 0.3
+#-cutoff 5
+#-server JP
+#-json /Users/fgiacomoni/Inra/labs/tests/massbank_V02/out.json
+#-csv /Users/fgiacomoni/Inra/labs/tests/massbank_V02/out.csv
+#-xls /Users/fgiacomoni/Inra/labs/tests/massbank_V02/out.xls
 
 
-
-if ($sequence eq "MAPPER") {
+elsif ($sequence eq "MAPPER") {
 	
 	## testing mapper module of massbank wrapper.
 	## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -41,10 +123,10 @@ if ($sequence eq "MAPPER") {
 	
 	
 	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	# ARGVTS : $pcs, $mzs, $ints, $names
-	print "\n** Test $current_test get_pcgroups with pcs, mzs, ints, names arrays **\n" ; $current_test++ ;
+	# ARGVTS : $pcs, $mzs, $ints
+	print "\n** Test $current_test get_pcgroups with pcs, mzs, ints arrays **\n" ; $current_test++ ;
 	is_deeply( get_pcgroupsTest (
-		[1, 2, 1, 2, 1, 2, 1], ['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], ['300', '300', '300', '300', '300', '300', '300'], ['name1', 'name2', 'name3', 'name4', 'name5', 'name6', 'name7'] ), 
+		[1, 2, 1, 2, 1, 2, 1], ['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], ['300', '300', '300', '300', '300', '300', '300'] ), 
 		{ '1' => {   'id' => '1',
 	                   'mzmed' => ['273.096','290.118','292.113','580.179'],
 	                   'into' => ['300','300','300','300'],
@@ -57,6 +139,26 @@ if ($sequence eq "MAPPER") {
 	                   'massbank_ids' => [],   }
 		},  
 	'Method \'getPcgroups\' works with two pcgroups and return the attended pcgroups object');
+	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# ARGVTS : $pcs, $mzs, $ints
+	print "\n** Test $current_test get_pcgroups with pcs, mzs, ints (some can be equal to 0) arrays **\n" ; $current_test++ ;
+	is_deeply( get_pcgroupsTest (
+		[1, 2, 1, 2, 1, 2, 1], ['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], ['0', '300', '300', '300', '300', '300', '300'] ), 
+		{ '1' => {   'id' => '1',
+	                   'mzmed' => ['273.096','290.118','292.113','580.179'],
+	                   'into' => ['0','300','300','300'],
+	                   'annotation' => {},
+	                   'massbank_ids' => []    },
+	      '2' => { 'annotation' => {},
+	                   'into' => ['300','300','300'],
+	                   'mzmed' => ['289.086','291.096','579.169'],
+	                   'id' => '2',
+	                   'massbank_ids' => [],   }
+		},  
+	'Method \'getPcgroups\' works with two pcgroups (with intensity equal to 0) and return the attended pcgroups object');
+	
+	
 	
 	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	## ARGVTS : $header, $init_pcs, $pcgroups
@@ -148,24 +250,26 @@ elsif ($sequence eq "API") {
 
 
 ## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 03 connectMassBankJP with real uri and proxy **\n" ;
+print "\n** Test $current_test connectMassBankJP with real uri and proxy **\n" ; $current_test++;
 isa_ok( connectMassBankJPTest(), 'SOAP::Lite' );
 
 ## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 04 connectMassBankDE with real uri and proxy **\n" ;
+print "\n** Test $current_test connectMassBankDE with real uri and proxy **\n" ; $current_test++ ;
 isa_ok( connectMassBankDETest(), 'SOAP::Lite' );
 
 ## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 05 getInstrumentTypes with the JP server **\n" ;
-#is_deeply( getInstrumentTypesTest('JP'), ['APCI-ITFT', 'APCI-ITTOF','CE-ESI-TOF', 'CI-B', 'EI-B', 'EI-EBEB', 'ESI-ITFT', 'ESI-ITTOF', 'FAB-B', 'FAB-EB', 'FAB-EBEB', 'FD-B', 'FI-B', 'GC-EI-QQ', 'GC-EI-TOF', 'LC-APCI-QTOF', 'LC-APPI-QQ', 'LC-ESI-IT', 'LC-ESI-ITFT', 'LC-ESI-ITTOF', 'LC-ESI-Q', 'LC-ESI-QFT', 'LC-ESI-QIT', 'LC-ESI-QQ', 'LC-ESI-QTOF', 'LC-ESI-TOF', 'MALDI-QIT', 'MALDI-TOF', 'MALDI-TOFTOF'], 'Works with \'JP server\' and return a list of instrument types');
-#print "-- no test -- skipped because JP method is down" ;
+print "\n** Test $current_test getInstrumentTypes with the JP server **\n" ; $current_test++ ;
+is_deeply( getInstrumentTypesTest('JP'), ['APCI-ITFT', 'APCI-ITTOF','CE-ESI-TOF', 'CI-B', 'EI-B', 'EI-EBEB', 'ESI-ITFT', 'ESI-ITTOF', 'FAB-B', 'FAB-EB', 'FAB-EBEB', 'FD-B', 'FI-B', 'GC-EI-QQ', 'GC-EI-TOF', 'LC-APCI-QTOF', 'LC-APPI-QQ', 'LC-ESI-IT', 'LC-ESI-ITFT', 'LC-ESI-ITTOF', 'LC-ESI-Q', 'LC-ESI-QFT', 'LC-ESI-QIT', 'LC-ESI-QQ', 'LC-ESI-QTOF', 'LC-ESI-TOF', 'MALDI-QIT', 'MALDI-TOF', 'MALDI-TOFTOF'], "Works with \'JP server\' and return a list of instrument types");
+
+print "\n** Test $current_test getInstrumentTypes with the DE server **\n" ; $current_test++ ;
+#is_deeply( getInstrumentTypesTest('EU'), ['APCI-ITFT', 'APCI-ITTOF', 'CE-ESI-TOF', 'CI-B', 'EI-B', 'EI-EBEB', 'ESI-FTICR', 'ESI-ITFT', 'ESI-ITTOF', 'FAB-B', 'FAB-EB', 'FAB-EBEB', 'FD-B', 'FI-B', 'GC-EI-QQ', 'GC-EI-TOF', 'HPLC-ESI-TOF', 'LC-APCI-Q', 'LC-APCI-QTOF', 'LC-APPI-QQ', 'LC-ESI-IT', 'LC-ESI-ITFT', 'LC-ESI-ITTOF', 'LC-ESI-Q', 'LC-ESI-QFT', 'LC-ESI-QIT', 'LC-ESI-QQ', 'LC-ESI-QTOF', 'LC-ESI-TOF', 'MALDI-QIT', 'MALDI-TOF', 'MALDI-TOFTOF', 'UPLC-ESI-QTOF'], "Works with $server server and return a list of instrument types");
+print "-- no test -- skipped because DE method is down\n" ;
 ## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 06 getInstrumentTypes with the DE server **\n" ;
-is_deeply( getInstrumentTypesTest('DE'), ['APCI-ITFT', 'APCI-ITTOF', 'CE-ESI-TOF', 'CI-B', 'EI-B', 'EI-EBEB', 'ESI-FTICR', 'ESI-ITFT', 'ESI-ITTOF', 'FAB-B', 'FAB-EB', 'FAB-EBEB', 'FD-B', 'FI-B', 'GC-EI-QQ', 'GC-EI-TOF', 'HPLC-ESI-TOF', 'LC-APCI-Q', 'LC-APCI-QTOF', 'LC-APPI-QQ', 'LC-ESI-IT', 'LC-ESI-ITFT', 'LC-ESI-ITTOF', 'LC-ESI-Q', 'LC-ESI-QFT', 'LC-ESI-QIT', 'LC-ESI-QQ', 'LC-ESI-QTOF', 'LC-ESI-TOF', 'MALDI-QIT', 'MALDI-TOF', 'MALDI-TOFTOF', 'UPLC-ESI-QTOF'], 'Works with \'DE server\' and return a list of instrument types');
+
 
 ## 		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 07 getRecord on JP server with a true ID **\n" ; 
-is_deeply( getRecordInfoTest('DE', ['KOX00001']), 
+print "\n** Test $current_test getRecord on $server server with a true ID **\n" ; $current_test++ ;
+is_deeply( getRecordInfoTest($server, ['KOX00001']), 
 ['ACCESSION: KOX00001
 RECORD_TITLE: GABA; LC-ESI-QTOF; MS2; MERGED; [M-H]-
 DATE: 2011.08.24 (Created 2008.11.28)
@@ -205,15 +309,15 @@ PK$NUM_PEAK: N/A
 PK$PEAK: m/z int. rel.int.
   N/A
 '], 
-'Works with \'DE server\' and return one record from "KOX00001" id');
+"Works with $server server and return one record from \"KOX00001\" id");
 
 ## 	test a false massbank ID	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 08 getRecord with a false ID **\n" ;
-is_deeply( getRecordInfoTest('DE', ['KOX100101']), [undef], 'Method \'getRecordInfo\' works with \'JP server\' and manage no sended record from "KOX100101" a false id');
+print "\n** Test $current_test getRecord with a false ID **\n" ; $current_test++ ;
+is_deeply( getRecordInfoTest($server, ['KOX100101']), [undef], "Method \'getRecordInfo\' works with $server server and manage no sended record from \"KOX100101\" a false id");
 
 ## 	test a false massbank ID	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 09 getRecord with a false ID into a real list **\n" ;
-is_deeply( getRecordInfoTest('DE', ['KOX100101', 'KOX00001']), ['ACCESSION: KOX00001
+print "\n** Test $current_test getRecord with a false ID into a real list **\n" ; $current_test++;
+is_deeply( getRecordInfoTest($server, ['KOX100101', 'KOX00001']), ['ACCESSION: KOX00001
 RECORD_TITLE: GABA; LC-ESI-QTOF; MS2; MERGED; [M-H]-
 DATE: 2011.08.24 (Created 2008.11.28)
 AUTHORS: Institute for Advanced Biosciences, Keio Univ.
@@ -251,20 +355,20 @@ PK$ANNOTATION: 41.9979886273 84.0449388199 102.0555035062
 PK$NUM_PEAK: N/A
 PK$PEAK: m/z int. rel.int.
   N/A
-'], 'Method \'getRecordInfo\' works with \'DE server\' and don\'t send record from "KOX100101" a false id into a list');
+'], "Method \'getRecordInfo\' works with $server server and don\'t send record from \"KOX100101\" a false id into a list");
 
 
 ## 	test an undef massbank IDs list	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 10 getRecord with a undef list of IDs **\n" ;
-is_deeply( getRecordInfoTest('DE', undef), [], 'Method \'getRecordInfo\' works with \'DE server\' and manage undef massbank ids list');
+print "\n** Test $current_test getRecord with a undef list of IDs **\n" ; $current_test++;
+is_deeply( getRecordInfoTest($server, undef), [], 'Method \'getRecordInfo\' works with $server server and manage undef massbank ids list');
 
 ##	test an empty massbank IDs list	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 11 getRecord with a void list of IDs **\n" ;
-is_deeply( getRecordInfoTest('DE', [] ), [], 'Method \'getRecordInfo\' works with \'DE server\' and manage empty massbank ids list');
+print "\n** Test $current_test getRecord with a void list of IDs **\n" ; $current_test++ ;
+is_deeply( getRecordInfoTest($server, [] ), [], 'Method \'getRecordInfo\' works with $server server and manage empty massbank ids list');
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 12 getRecord on DE server with only one real ID **\n" ;
-is_deeply( getRecordInfoTest('DE', ['KOX00001']), 
+print "\n** Test $current_test getRecord on DE server with only one real ID **\n" ; $current_test++;
+is_deeply( getRecordInfoTest($server, ['KOX00001']), 
 ['ACCESSION: KOX00001
 RECORD_TITLE: GABA; LC-ESI-QTOF; MS2; MERGED; [M-H]-
 DATE: 2011.08.24 (Created 2008.11.28)
@@ -304,12 +408,12 @@ PK$NUM_PEAK: N/A
 PK$PEAK: m/z int. rel.int.
   N/A
 '], 
-'Method \'getRecordInfo\' works with \'DE server\' and return one record from "KOX00001" id');
+'Method \'getRecordInfo\' works with $server server and return one record from "KOX00001" id');
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-print "\n** Test 13 getRecord with a real list of IDs **\n" ;
+print "\n** Test $current_test getRecord with a real list of IDs ('KOX00002', 'KOX00003', 'FU000001', 'TY000040', 'TY000041', 'FU000002') **\n" ; $current_test++;
 
-is_deeply( getRecordInfoTest('DE',['KOX00002', 'KOX00003', 'FU000001', 'TY000040', 'TY000041', 'FU000002']),
+is_deeply( getRecordInfoTest($server,['KOX00002', 'KOX00003', 'FU000001', 'TY000040', 'TY000041', 'FU000002']),
 [
           'ACCESSION: KOX00002
 RECORD_TITLE: GABA; LC-ESI-QTOF; MS2; MERGED; [M+H]+
@@ -386,6 +490,109 @@ PK$ANNOTATION: 107.0357711171 134.0466701544 136.0623202186 266.0889288996
 PK$NUM_PEAK: N/A
 PK$PEAK: m/z int. rel.int.
   N/A
+',
+	'ACCESSION: TY000040
+RECORD_TITLE: Aconitine; LC-ESI-ITTOF; MS; [M+H]+
+DATE: 2011.05.06 (Created 2008.10.10)
+AUTHORS: Ken Tanaka
+LICENSE: CC BY-SA
+CH$NAME: Aconitine
+CH$NAME: NSC56464
+CH$NAME: 16-Ethyl-1alpha,6alpha,19beta-trimethoxy-4-(methoxymethyl)-aconitane-3alpha,8,10alpha,11,18alpha-pentol, 8-acetate 10-benzoate
+CH$NAME: 20-ethyl-3alpha,13,15alpha-trihydroxy-1alpha,6alpha,16beta-trimethoxy-4-(methoxymethyl)aconitane-8,14alpha-diyl 8-acetate 14-benzoate
+CH$COMPOUND_CLASS: Natural Product; Alkaloid
+CH$FORMULA: C34H47NO11
+CH$EXACT_MASS: 645.31491
+CH$SMILES: COC(C7)C(C61[H])(C5([H])2)C(N(CC(COC)6C7O)CC)([H])C(C(C5([H])3)(C(C(OC)C(O)(C(OC(=O)c(c4)cccc4)3)C2)O)OC(C)=O)([H])C1OC
+CH$IUPAC: InChI=1S/C34H47NO11/c1-7-35-15-31(16-41-3)20(37)13-21(42-4)33-19-14-32(40)28(45-30(39)18-11-9-8-10-12-18)22(19)34(46-17(2)36,27(38)29(32)44-6)23(26(33)35)24(43-5)25(31)33/h8-12,19-29,37-38,40H,7,13-16H2,1-6H3/t19-,20-,21+,22-,23+,24+,25-,26+,27+,28-,29+,31+,32-,33+,34-/m1/s1
+CH$LINK: CAS 302-27-2
+CH$LINK: NIKKAJI J9.871J 
+CH$LINK: PUBCHEM 245005
+AC$INSTRUMENT: Shimadzu LC20A-IT-TOFMS
+AC$INSTRUMENT_TYPE: LC-ESI-ITTOF
+AC$MASS_SPECTROMETRY: MS_TYPE MS
+AC$MASS_SPECTROMETRY: ION_MODE POSITIVE
+AC$MASS_SPECTROMETRY: CDL_TEMPERATURE 200 C
+AC$MASS_SPECTROMETRY: INTERFACE_VOLTAGE +4.50 kV
+AC$MASS_SPECTROMETRY: SCANNING_RANGE 100-2000
+AC$CHROMATOGRAPHY: COLUMN_NAME Waters Atlantis T3 (2.1 x 150 mm, 5 um)
+AC$CHROMATOGRAPHY: COLUMN_TEMPERATURE 40 C
+AC$CHROMATOGRAPHY: FLOW_GRADIENT 10 % B to 100 % B/40 min
+AC$CHROMATOGRAPHY: FLOW_RATE 0.2 ml/min
+AC$CHROMATOGRAPHY: RETENTION_TIME 1197.701
+AC$CHROMATOGRAPHY: SOLVENT (A)5 mM ammonium acetate, (B)CH3CN
+MS$FOCUSED_ION: ION_TYPE [M+H]+
+PK$NUM_PEAK: 3
+PK$PEAK: m/z int. rel.int.
+  646.3223 64380108 999
+  647.3252 26819201 416
+  648.3309 7305831 113
+',
+          'ACCESSION: TY000041
+RECORD_TITLE: Atropine; LC-ESI-ITTOF; MS; [M+H]+
+DATE: 2011.05.06 (Created 2008.10.10)
+AUTHORS: Ken Tanaka
+LICENSE: CC BY-SA
+CH$NAME: Atropine
+CH$NAME: Benzeneacetic acid, alpha-(hydroxymethyl)- (3-endo)-8-methyl-8-azabicyclo[3.2.1]oct-3-yl ester
+CH$NAME: 1alphaH,5alphaH-Tropan-3alpha-ol (+-)-tropate (ester)
+CH$NAME: Benzeneacetic acid, alpha-(hydroxymethyl)-, 8-methyl-8-azabicyclo[3.2.1]oct-3-yl ester, endo-
+CH$NAME: (+-)-Atropine
+CH$NAME: (+-)-Hyoscyamine
+CH$NAME: Tropine (+-)-tropate
+CH$NAME: dl-Tropyl tropate
+CH$NAME: dl-Hyoscyamine
+CH$NAME: Tropine tropate
+CH$NAME: Atropinol
+CH$NAME: Eyesules
+CH$NAME: Atropen
+CH$NAME: Isopto-atropine
+CH$NAME: Troyl tropate
+CH$NAME: Belladenal
+CH$NAME: Atropina
+CH$NAME: Cytospaz
+CH$NAME: Donnagel
+CH$NAME: Anaspaz
+CH$NAME: Atnaa
+CH$NAME: Lonox
+CH$NAME: Neo-Diophen
+CH$NAME: DL-Tropanyl 2-hydroxy-1-phenylpropionate
+CH$NAME: 2-Phenylhydracrylic acid 3-alpha-tropanyl ester
+CH$NAME: tropan-3alpha-yl 3-hydroxy-2-phenylpropanoate
+CH$NAME: 8-Methyl-8-azabicyclo[3.2.1]oct-3-yl tropate
+CH$NAME: 8-Methyl-8-azabicyclo[3.2.1]oct-3-yl 3-hydroxy-2-phenylpropanoate
+CH$NAME: alpha-(Hydroxymethyl)benzeneacetic acid 8-methyl-8-azabicyclo(3.2.1)oct-3-yl ester
+CH$NAME: Benzeneacetic acid, alpha-(hydroxymethyl)-, (3-endo)-8-methyl-8-azabicyclo(3.2.1)oct-3-yl ester
+CH$NAME: (3-endo)-8-methyl-8-azabicyclo[3.2.1]oct-3-yl (2S)-3-hydroxy-2-phenylpropanoate
+CH$NAME: [(1R,5S)-8-methyl-8-azabicyclo[3.2.1]octan-3-yl] 3-hydroxy-2-phenylpropanoate
+CH$NAME: beta-(Hydroxymethyl)benzeneacetic acid 8-methyl-8-azabicyclo[3.2.1]oct-3-yl ester
+CH$NAME: endo-(+/-)-alpha-(Hydroxymethyl)benzeneacetic acid 8-methyl-8-azabicyclo[3.2.1]oct-3-yl ester
+CH$COMPOUND_CLASS: Natural Product; Alkaloid
+CH$FORMULA: C17H23NO3
+CH$EXACT_MASS: 289.16779
+CH$SMILES: OCC(C(=O)OC(C2)CC(C3)N(C)C(C3)2)c(c1)cccc1
+CH$IUPAC: InChI=1S/C17H23NO3/c1-18-13-7-8-14(18)10-15(9-13)21-17(20)16(11-19)12-5-3-2-4-6-12/h2-6,13-16,19H,7-11H2,1H3/t13-,14+,15+,16?
+CH$LINK: CAS 51-55-8
+CH$LINK: NIKKAJI J237.402A 
+CH$LINK: PUBCHEM 174174
+AC$INSTRUMENT: Shimadzu LC20A-IT-TOFMS
+AC$INSTRUMENT_TYPE: LC-ESI-ITTOF
+AC$MASS_SPECTROMETRY: MS_TYPE MS
+AC$MASS_SPECTROMETRY: ION_MODE POSITIVE
+AC$MASS_SPECTROMETRY: CDL_TEMPERATURE 200 C
+AC$MASS_SPECTROMETRY: INTERFACE_VOLTAGE +4.50 kV
+AC$MASS_SPECTROMETRY: SCANNING_RANGE 100-2000
+AC$CHROMATOGRAPHY: COLUMN_NAME Waters Atlantis T3 (2.1 x 150 mm, 5 um)
+AC$CHROMATOGRAPHY: COLUMN_TEMPERATURE 40 C
+AC$CHROMATOGRAPHY: FLOW_GRADIENT 10 % B to 100 % B/40 min
+AC$CHROMATOGRAPHY: FLOW_RATE 0.2 ml/min
+AC$CHROMATOGRAPHY: RETENTION_TIME 641.701
+AC$CHROMATOGRAPHY: SOLVENT (A)5 mM ammonium acetate, (B)CH3CN
+MS$FOCUSED_ION: ION_TYPE [M+H]+
+PK$NUM_PEAK: 2
+PK$PEAK: m/z int. rel.int.
+  290.1754 109188681 999
+  291.1762 21571851 197
 ',
           'ACCESSION: FU000001
 RECORD_TITLE: 3-Man2GlcNAc; LC-ESI-QQ; MS2; CE:15V; Amide
@@ -490,117 +697,15 @@ PK$PEAK: m/z int. rel.int.
   693.9 4.249e4 50
   694.5 1.979e5 232
   695.3 9.682e4 114
-',
-          'ACCESSION: TY000040
-RECORD_TITLE: Aconitine; LC-ESI-ITTOF; MS; [M+H]+
-DATE: 2011.05.06 (Created 2008.10.10)
-AUTHORS: Ken Tanaka
-LICENSE: CC BY-SA
-CH$NAME: Aconitine
-CH$NAME: NSC56464
-CH$NAME: 16-Ethyl-1alpha,6alpha,19beta-trimethoxy-4-(methoxymethyl)-aconitane-3alpha,8,10alpha,11,18alpha-pentol, 8-acetate 10-benzoate
-CH$NAME: 20-ethyl-3alpha,13,15alpha-trihydroxy-1alpha,6alpha,16beta-trimethoxy-4-(methoxymethyl)aconitane-8,14alpha-diyl 8-acetate 14-benzoate
-CH$COMPOUND_CLASS: Natural Product; Alkaloid
-CH$FORMULA: C34H47NO11
-CH$EXACT_MASS: 645.31491
-CH$SMILES: COC(C7)C(C61[H])(C5([H])2)C(N(CC(COC)6C7O)CC)([H])C(C(C5([H])3)(C(C(OC)C(O)(C(OC(=O)c(c4)cccc4)3)C2)O)OC(C)=O)([H])C1OC
-CH$IUPAC: InChI=1S/C34H47NO11/c1-7-35-15-31(16-41-3)20(37)13-21(42-4)33-19-14-32(40)28(45-30(39)18-11-9-8-10-12-18)22(19)34(46-17(2)36,27(38)29(32)44-6)23(26(33)35)24(43-5)25(31)33/h8-12,19-29,37-38,40H,7,13-16H2,1-6H3/t19-,20-,21+,22-,23+,24+,25-,26+,27+,28-,29+,31+,32-,33+,34-/m1/s1
-CH$LINK: CAS 302-27-2
-CH$LINK: NIKKAJI J9.871J 
-CH$LINK: PUBCHEM 245005
-AC$INSTRUMENT: Shimadzu LC20A-IT-TOFMS
-AC$INSTRUMENT_TYPE: LC-ESI-ITTOF
-AC$MASS_SPECTROMETRY: MS_TYPE MS
-AC$MASS_SPECTROMETRY: ION_MODE POSITIVE
-AC$MASS_SPECTROMETRY: CDL_TEMPERATURE 200 C
-AC$MASS_SPECTROMETRY: INTERFACE_VOLTAGE +4.50 kV
-AC$MASS_SPECTROMETRY: SCANNING_RANGE 100-2000
-AC$CHROMATOGRAPHY: COLUMN_NAME Waters Atlantis T3 (2.1 x 150 mm, 5 um)
-AC$CHROMATOGRAPHY: COLUMN_TEMPERATURE 40 C
-AC$CHROMATOGRAPHY: FLOW_GRADIENT 10 % B to 100 % B/40 min
-AC$CHROMATOGRAPHY: FLOW_RATE 0.2 ml/min
-AC$CHROMATOGRAPHY: RETENTION_TIME 1197.701
-AC$CHROMATOGRAPHY: SOLVENT (A)5 mM ammonium acetate, (B)CH3CN
-MS$FOCUSED_ION: ION_TYPE [M+H]+
-PK$NUM_PEAK: 3
-PK$PEAK: m/z int. rel.int.
-  646.3223 64380108 999
-  647.3252 26819201 416
-  648.3309 7305831 113
-',
-          'ACCESSION: TY000041
-RECORD_TITLE: Atropine; LC-ESI-ITTOF; MS; [M+H]+
-DATE: 2011.05.06 (Created 2008.10.10)
-AUTHORS: Ken Tanaka
-LICENSE: CC BY-SA
-CH$NAME: Atropine
-CH$NAME: Benzeneacetic acid, alpha-(hydroxymethyl)- (3-endo)-8-methyl-8-azabicyclo[3.2.1]oct-3-yl ester
-CH$NAME: 1alphaH,5alphaH-Tropan-3alpha-ol (+-)-tropate (ester)
-CH$NAME: Benzeneacetic acid, alpha-(hydroxymethyl)-, 8-methyl-8-azabicyclo[3.2.1]oct-3-yl ester, endo-
-CH$NAME: (+-)-Atropine
-CH$NAME: (+-)-Hyoscyamine
-CH$NAME: Tropine (+-)-tropate
-CH$NAME: dl-Tropyl tropate
-CH$NAME: dl-Hyoscyamine
-CH$NAME: Tropine tropate
-CH$NAME: Atropinol
-CH$NAME: Eyesules
-CH$NAME: Atropen
-CH$NAME: Isopto-atropine
-CH$NAME: Troyl tropate
-CH$NAME: Belladenal
-CH$NAME: Atropina
-CH$NAME: Cytospaz
-CH$NAME: Donnagel
-CH$NAME: Anaspaz
-CH$NAME: Atnaa
-CH$NAME: Lonox
-CH$NAME: Neo-Diophen
-CH$NAME: DL-Tropanyl 2-hydroxy-1-phenylpropionate
-CH$NAME: 2-Phenylhydracrylic acid 3-alpha-tropanyl ester
-CH$NAME: tropan-3alpha-yl 3-hydroxy-2-phenylpropanoate
-CH$NAME: 8-Methyl-8-azabicyclo[3.2.1]oct-3-yl tropate
-CH$NAME: 8-Methyl-8-azabicyclo[3.2.1]oct-3-yl 3-hydroxy-2-phenylpropanoate
-CH$NAME: alpha-(Hydroxymethyl)benzeneacetic acid 8-methyl-8-azabicyclo(3.2.1)oct-3-yl ester
-CH$NAME: Benzeneacetic acid, alpha-(hydroxymethyl)-, (3-endo)-8-methyl-8-azabicyclo(3.2.1)oct-3-yl ester
-CH$NAME: (3-endo)-8-methyl-8-azabicyclo[3.2.1]oct-3-yl (2S)-3-hydroxy-2-phenylpropanoate
-CH$NAME: [(1R,5S)-8-methyl-8-azabicyclo[3.2.1]octan-3-yl] 3-hydroxy-2-phenylpropanoate
-CH$NAME: beta-(Hydroxymethyl)benzeneacetic acid 8-methyl-8-azabicyclo[3.2.1]oct-3-yl ester
-CH$NAME: endo-(+/-)-alpha-(Hydroxymethyl)benzeneacetic acid 8-methyl-8-azabicyclo[3.2.1]oct-3-yl ester
-CH$COMPOUND_CLASS: Natural Product; Alkaloid
-CH$FORMULA: C17H23NO3
-CH$EXACT_MASS: 289.16779
-CH$SMILES: OCC(C(=O)OC(C2)CC(C3)N(C)C(C3)2)c(c1)cccc1
-CH$IUPAC: InChI=1S/C17H23NO3/c1-18-13-7-8-14(18)10-15(9-13)21-17(20)16(11-19)12-5-3-2-4-6-12/h2-6,13-16,19H,7-11H2,1H3/t13-,14+,15+,16?
-CH$LINK: CAS 51-55-8
-CH$LINK: NIKKAJI J237.402A 
-CH$LINK: PUBCHEM 174174
-AC$INSTRUMENT: Shimadzu LC20A-IT-TOFMS
-AC$INSTRUMENT_TYPE: LC-ESI-ITTOF
-AC$MASS_SPECTROMETRY: MS_TYPE MS
-AC$MASS_SPECTROMETRY: ION_MODE POSITIVE
-AC$MASS_SPECTROMETRY: CDL_TEMPERATURE 200 C
-AC$MASS_SPECTROMETRY: INTERFACE_VOLTAGE +4.50 kV
-AC$MASS_SPECTROMETRY: SCANNING_RANGE 100-2000
-AC$CHROMATOGRAPHY: COLUMN_NAME Waters Atlantis T3 (2.1 x 150 mm, 5 um)
-AC$CHROMATOGRAPHY: COLUMN_TEMPERATURE 40 C
-AC$CHROMATOGRAPHY: FLOW_GRADIENT 10 % B to 100 % B/40 min
-AC$CHROMATOGRAPHY: FLOW_RATE 0.2 ml/min
-AC$CHROMATOGRAPHY: RETENTION_TIME 641.701
-AC$CHROMATOGRAPHY: SOLVENT (A)5 mM ammonium acetate, (B)CH3CN
-MS$FOCUSED_ION: ION_TYPE [M+H]+
-PK$NUM_PEAK: 2
-PK$PEAK: m/z int. rel.int.
-  290.1754 109188681 999
-  291.1762 21571851 197
 '
         ], 
-'Method \'getRecordInfo\' works with \'DE server\' and return a list of records from "KOX00002, TY000040, FU000001, KOX00002, TY000040, FU000001" ids');
+'Method \'getRecordInfo\' works with $server server and return a list of records from "KOX00002, TY000040, FU000001, KOX00002, TY000040, FU000001" ids');
 
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARGVTS : $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff
-print "\n** Test 14 searchSpectrum with a list of mzs, intensities and real search parameters **\n" ;
+# Structure of res : %ret = {'res' => [], 'num_res' => int, 'pcgroup_id'=> int }
+print "\n** Test $current_test searchSpectrum with a list of mzs, intensities and real search parameters **\n" ; $current_test++;
 is_deeply( searchSpectrumTest(
 		['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], 
 		['300', '300', '300', '300', '300', '300', '300'],
@@ -610,28 +715,30 @@ is_deeply( searchSpectrumTest(
 		'unit',		# unit (unit or ppm)
 		0.3, 		# tol with unit = unit / can be also 50 with unit = ppm
 		50			# cutoff
-	), 
-	[
-		{
-			'title' => 'Lormetazepam; LC-ESI-Q; MS; POS; 60 V',
-			'exactMass' => '334.02758',
-			'score' => '0.428034082411',
-			'id' => 'WA001260',
-			'formula' => 'C16H12Cl2N2O2'
-		},
-		{
-			'formula' => 'C16H12Cl2N2O2',
-			'exactMass' => '334.02758',
-			'score' => '0.385859601865',
-			'id' => 'WA001261',
-			'title' => 'Lormetazepam; LC-ESI-Q; MS; POS; 45 V'
-		}
-	], 
-'Method \'searchSpectrum\' works with \'DE server\' and return a list of entries from given mzs list with no intensity (very low in true)');
+	),
+	{ 'num_res' => 2, 'pcgroup_id' => 1, 'res' =>
+		[
+			{
+				'title' => 'Lormetazepam; LC-ESI-Q; MS; POS; 60 V',
+				'exactMass' => '334.02758',
+				'score' => '0.428034082411',
+				'id' => 'WA001260',
+				'formula' => 'C16H12Cl2N2O2'
+			},
+			{
+				'formula' => 'C16H12Cl2N2O2',
+				'exactMass' => '334.02758',
+				'score' => '0.385859601865',
+				'id' => 'WA001261',
+				'title' => 'Lormetazepam; LC-ESI-Q; MS; POS; 45 V'
+			}
+		]
+	}, 
+"Method \'searchSpectrum\' works with $server server and return a list of entries from given mzs list with no intensity (very low in true)");
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARGVTS : $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff
-print "\n** Test 15 searchSpectrum with a list of mzs, intensities and real search parameters **\n" ;
+print "\n** Test $current_test searchSpectrum with a list of mzs, intensities and real search parameters **\n" ; $current_test++;
 is_deeply( searchSpectrumTest(
 		['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], 
 		['5', '5', '5', '5', '5', '5', '5'],
@@ -641,29 +748,89 @@ is_deeply( searchSpectrumTest(
 		'unit',		# unit (unit or ppm)
 		0.3, 		# tol with unit = unit / can be also 50 with unit = ppm
 		50			# cutoff
-	), 
-	[
-		{
-			'title' => 'Lormetazepam; LC-ESI-Q; MS; POS; 60 V',
-			'exactMass' => '334.02758',
-			'score' => '0.428034082411',
-			'id' => 'WA001260',
-			'formula' => 'C16H12Cl2N2O2'
-		},
-		{
-			'formula' => 'C16H12Cl2N2O2',
-			'exactMass' => '334.02758',
-			'score' => '0.385859601865',
-			'id' => 'WA001261',
-			'title' => 'Lormetazepam; LC-ESI-Q; MS; POS; 45 V'
-		}
-	], 
-'Method \'searchSpectrum\' works with \'DE server\' and return a list of entries from given mzs list');
-
+	),
+	{ 'num_res' => 2, 'pcgroup_id' => 1, 'res' =>
+		[
+			{
+				'title' => 'Lormetazepam; LC-ESI-Q; MS; POS; 60 V',
+				'exactMass' => '334.02758',
+				'score' => '0.428034082411',
+				'id' => 'WA001260',
+				'formula' => 'C16H12Cl2N2O2'
+			},
+			{
+				'formula' => 'C16H12Cl2N2O2',
+				'exactMass' => '334.02758',
+				'score' => '0.385859601865',
+				'id' => 'WA001261',
+				'title' => 'Lormetazepam; LC-ESI-Q; MS; POS; 45 V'
+			}
+		]
+	}, 
+'Method \'searchSpectrum\' works with $server server and return a list of entries from given mzs list');
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARGVTS : $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff
-print "\n** Test 16 searchSpectrum with a list of mzs, intensities and max = 2 **\n" ;
+print "\n** Test $current_test searchSpectrum with a list of mzs, intensities and real search parameters - /!\\ Bug - Real intensity **\n" ; $current_test++;
+is_deeply( searchSpectrumTest(
+		['121.5145853','121.6260795','126.186473','126.2979602','126.4094198','184.0731041'],
+		['614328.101','298110.8522','1372105.065','799423.8448','99064.65118','2342541.316'],
+		'Positive', # mode
+		['all'],		# instrument
+		'2',		# max return / only 2 for test
+		'unit',		# unit (unit or ppm)
+		0.3, 		# tol with unit = unit / can be also 50 with unit = ppm
+		50			# cutoff
+	), 
+	{ 'num_res' => 1, 'pcgroup_id' => 1, 'res' => 
+		[
+			{
+				'formula' => 'C12H13NO2',
+				'id' => 'KO003209',
+				'title' => '3-Indolebutyric acid; LC-ESI-QQ; MS2; CE:30 V; [M+H]+',
+				'score' => '0.239887404489',
+				'exactMass' => '203.09463'
+			}
+		]
+	}, 
+"Method \'searchSpectrum\' works with $server server and return a list of entries from given mzs list /!\\ Bug - Real intensity");
+
+##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# ARGVTS : $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff
+print "\n** Test $current_test searchSpectrum with a list of mzs, intensities and real search parameters - /!\\ Bug - Real relative intensity **\n" ; $current_test++;
+is_deeply( searchSpectrumTest(
+		['121.51459','121.62608','126.18647','126.29796','126.40942','184.0731','385.23','502.29222','503.29564','548.33424','550.32453','551.32481','566.28931','566.79058','568.339'],
+		['2','1','7','4','1','5','0','18','5','4','1','1','0','0','999'],
+		'Positive', # mode
+		['all'],		# instrument
+		'2',		# max return / only 2 for test
+		'unit',		# unit (unit or ppm)
+		0.3, 		# tol with unit = unit / can be also 50 with unit = ppm
+		50			# cutoff
+	), 
+	{ 'num_res' => 2, 'pcgroup_id' => 1, 'res' => 
+		[
+			{
+			'id' => 'CA000162',
+			'exactMass' => '568.42803',
+			'title' => 'beta,beta-Carotene-2,2\'-diol; FAB-EBEB; MS2; m/z: 568.43; [M]*+',
+			'formula' => 'C40H56O2',
+			'score' => '0.904567659364'
+			},
+			{
+			'exactMass' => '568.42803',
+			'id' => 'CA000153',
+			'score' => '0.620521335460',
+			'formula' => 'C40H56O2',
+			'title' => 'Isozeaxanthin; FAB-EBEB; MS2; m/z: 568.43; [M]*+'
+			}
+		]
+	}, 
+"Method \'searchSpectrum\' works with $server server and return a list of entries from given mzs list /!\\ Bug - Real relative intensity");
+
+##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# ARGVTS : $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff
+print "\n** Test $current_test searchSpectrum with a list of mzs, intensities and max = 2 **\n" ; $current_test++;
 is_deeply( searchSpectrumNBTest(
 		['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], 
 		['300', '300', '300', '300', '300', '300', '300'],
@@ -675,11 +842,11 @@ is_deeply( searchSpectrumNBTest(
 		50			# cutoff
 	), 
 	2, 
-'Method \'searchSpectrum\' works with \'DE server\' and return the right number of entries from given mzs list and parameters (max)');
+'Method \'searchSpectrum\' works with $server server and return the right number of entries from given mzs list and parameters (max)');
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARGVTS : $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff
-print "\n** Test 17 searchSpectrum with a list of mzs, but no intensity (in true very low) and max = 2 **\n" ;
+print "\n** Test $current_test searchSpectrum with a list of mzs, but no intensity (in true very low) and max = 2 **\n" ; $current_test++;
 is_deeply( searchSpectrumNBTest(
 		['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], 
 		[10, 10, 10, 10, 10, 10, 10 ],
@@ -691,11 +858,11 @@ is_deeply( searchSpectrumNBTest(
 		50			# cutoff
 	), 
 	2, 
-'Method \'searchSpectrum\' works with \'DE server\' and return the right number of entries from given mzs list and no intensity');
+'Method \'searchSpectrum\' works with $server server and return the right number of entries from given mzs list and no intensity');
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARGVTS : $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff
-print "\n** Test 18 searchSpectrum with a list of mzs, intensities and no optionnal parameter like instrument, unit, tolerance and cutoff **\n" ;
+print "\n** Test $current_test searchSpectrum with a list of mzs, intensities and no optionnal parameter like instrument, unit, tolerance and cutoff **\n" ; $current_test ++;
 is_deeply( searchSpectrumNBTest(
 		['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], 
 		['300', '300', '300', '300', '300', '300', '300'],
@@ -707,11 +874,11 @@ is_deeply( searchSpectrumNBTest(
 		undef		# cutoff
 	), 
 	2, 
-'Method \'searchSpectrum\' works with \'DE server\' and return the right number of entries from def parameters (instrument, unit, tolerance, cutoff )');
+'Method \'searchSpectrum\' works with $server server and return the right number of entries from def parameters (instrument, unit, tolerance, cutoff )');
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARGVTS : $mzs, $intensities, $ion, $instruments, $max, $unit, $tol, $cutoff, $max
-print "\n** Test 19 searchSpectrum with a list of mzs, intensities and no conf parameters for instrument, unit, tolerance and cutoff (value by default) **\n" ;
+print "\n** Test $current_test searchSpectrum with a list of mzs, intensities and no conf parameters for instrument, unit, tolerance and cutoff (value by default) **\n" ; $current_test++;
 is_deeply( searchSpectrumNBTest(
 		['273.096', '289.086', '290.118', '291.096', '292.113', '579.169', '580.179'], 
 		['300', '300', '300', '300', '300', '300', '300'],
@@ -722,12 +889,12 @@ is_deeply( searchSpectrumNBTest(
 		undef, 		# tol - 0.3  (by default) with unit = unit / can be also 50  (by default) with unit = ppm
 		undef		# cutoff - 5 by default
 	), 
-	369, 
-'Method \'searchSpectrum\' works with \'DE server\' and return the right number of entries (363) with undef parameters (instrument, unit, tolerance, cutoff, max )');
+	388, 
+'Method \'searchSpectrum\' works with $server server and return the right number of entries (363) with undef parameters (instrument, unit, tolerance, cutoff, max )');
 
 ##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARGVTS : $ids
-print "\n** Test 20 getPeak with a list ids **\n" ;
+print "\n** Test $current_test getPeak with a list ids **\n" ; $current_test++;
 is_deeply( getPeakTest( ['PR020003', 'FU000001']), 
 	[
 		{
@@ -743,7 +910,7 @@ is_deeply( getPeakTest( ['PR020003', 'FU000001']),
 			'numPeaks' => '8'
 		}
 	],
-'Method \'getPeak\' works with \'DE server\' and return the peak lists from given ids list');
+'Method \'getPeak\' works with $server server and return the peak lists from given ids list');
 
 
 
