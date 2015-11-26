@@ -1,0 +1,236 @@
+<tool id="massbank_ws_searchspectrum" name="MassBank search spectrum" version="2015-08-28">
+  <description>
+       : High Quality Mass Spectral Database.
+  </description>
+  <command interpreter="perl">
+    massbank_ws_searchspectrum.pl
+      -masses="$variableMetadata_in"
+      #if str($header.header_choice) == "True":
+        -lineheader="${header.nbheader}"
+      #end if
+      -col_mz="$col_mass" -col_pcgroup="$col_pcgroup"
+      #if str($intencity.colint_choice) == "True":
+        -col_int="${intencity.col_int}"
+      #end if
+      #if str($mode) == "Positive,Negative":
+        -mode="both"
+      #else:
+        -mode="$mode"
+      #end if
+      
+      #if str($advanced.advanced_settings) == "False":
+        -instruments="all" -max="10" -unit="unit" -tolerance="0.3" -cutoff="50" -server="JP"
+      #else:
+        -instruments="$advanced.instruments" -max="$advanced.max"
+        -unit="$advanced.mz_tolerance.unit" -tolerance="$advanced.mz_tolerance.tolerance"
+        -cutoff="$advanced.cutoff" -server="$advanced.server"
+      #end if
+
+      -csv="$variableMetadata"
+      -xls="$massBankSpectResXls"
+      -json="$massBankSpectResJson"
+  </command>
+  
+  <inputs>
+    <param name="variableMetadata_in" label="File of masses (format: tabular)" format="tabular" type="data" help="Generally variable metadata file" />
+    <conditional name="header">
+      <param name="header_choice" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="Do you have a header?" help="if 'YES' is selected then enter your number of header lines" />
+      <when value="yes">
+        <param name="nbheader" type="integer" label="Number of header lines" value="1" min="1" max="10" help="number of lines not containing masses"/>
+      </when>
+      <when value="no"/>
+    </conditional>
+    <param name="col_mass" label="Column of masses (MZ)" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+    <param name="col_pcgroup" label="Column of pcgroup" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+    <conditional name="intencity">
+      <param name="colint_choice" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Do you have a column of Intencity?" help="if 'YES' is selected then indicate your column of Intencity" />
+      <when value="yes">
+        <param name="col_int" label="Column of Intencity" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+      </when>
+      <when value="no"/>
+    </conditional>
+    <param name="mode" label="What kind of Ionization Search will be done?" type="select" display="checkboxes" multiple="True" help="">
+      <option value="Positive" selected="True">Positif Mode</option>
+      <option value="Negative" selected="True">Negatif Mode</option>
+    </param>
+    <conditional name="advanced">
+      <param name="advanced_settings" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Show advanced settings?" help="if 'NO' is selected then defaults values are: instruments => all ; max => 10 ; unit => unit ; tolerance => 0.3 ; cutoff => 50 ; server => JP" />
+      <when value="yes">
+        <param name="instruments" label="What kind of Instruments will be use?" type="select" display="checkboxes" multiple="True" help="">
+          <option value="APCI-ITFT">APCI-ITFT</option>
+          <option value="APCI-ITTOF">APCI-ITTOF</option>
+          <option value="CE-ESI-TOF">CE-ESI-TOF</option>
+          <option value="CI-B">CI-B</option>
+          <option value="EI-B">EI-B</option>
+          <option value="EI-EBEB">EI-EBEB</option>
+          <option value="ESI-ITFT">ESI-ITFT</option>
+          <option value="ESI-ITTOF">ESI-ITTOF</option>
+          <option value="FAB-B">FAB-B</option>
+          <option value="FAB-EB">FAB-EB</option>
+          <option value="FAB-EBEB">FAB-EBEB</option>
+          <option value="FD-B">FD-B</option>
+          <option value="FI-B">FI-B</option>
+          <option value="GC-EI-QQ">GC-EI-QQ</option>
+          <option value="GC-EI-TOF">GC-EI-TOF</option>
+          <option value="LC-APCI-QTOF">LC-APCI-QTOF</option>
+          <option value="LC-APPI-QQ">LC-APPI-QQ</option>
+          <option value="LC-ESI-IT">LC-ESI-IT</option>
+          <option value="LC-ESI-ITFT">LC-ESI-ITFT</option>
+          <option value="LC-ESI-ITTOF">LC-ESI-ITTOF</option>
+          <option value="LC-ESI-Q">LC-ESI-Q</option>
+          <option value="LC-ESI-QFT">LC-ESI-QFT</option>
+          <option value="LC-ESI-QIT">LC-ESI-QIT</option>
+          <option value="LC-ESI-QQ">LC-ESI-QQ</option>
+          <option value="LC-ESI-QTOF">LC-ESI-QTOF</option>
+          <option value="LC-ESI-TOF">LC-ESI-TOF</option>
+          <option value="MALDI-QIT">MALDI-QIT</option>
+          <option value="MALDI-TOF">MALDI-TOF</option>
+          <option value="MALDI-TOFTOF">MALDI-TOFTOF</option>
+        </param>
+        <param name="max" type="integer" label="Maximum number of search results" value="10" min="0" max="50" help="'0' means unspecified and then all results are obtained."/>
+        <conditional name="mz_tolerance">
+          <param name="unit" label="Unit of tolerance" type="select" display="radio" help="">
+            <option value="unit" selected="True">unit</option>
+            <option value="ppm">ppm</option>
+          </param>
+          <when value="unit">
+            <param name="tolerance" label="Tolerance of values of m/z of peaks (in unit)" type="float" value="0.3" min="0" max="10" help="Default value is 0.3 unit."/>
+          </when>
+          <when value="ppm">
+            <param name="tolerance" label="Tolerance of values of m/z of peaks (in ppm)" type="integer" value="50" min="0" max="5000" help="Default value is 50 ppm."/>
+          </when>
+        </conditional>
+        <param name="cutoff" label="Ignore peaks whose intensity is not larger than the value of cutoff" type="integer" value="50" min="0" max="5000" help="Ignore peaks whose intensity is not larger than the value of cutoff."/>
+        <param name="server" label="Which MassBank server start searching?" type="select" display="radio" help="">
+          <option value="JP" selected="True">Japon (JP)</option>
+          <option value="EU">Europe (EU)</option>
+        </param>
+      </when>
+      <when value="no"/>
+    </conditional>
+  
+  
+  </inputs>
+  
+  <outputs>
+    <data name="variableMetadata" label="${tool.name}_TSV" format="tabular" />
+    <data name="massBankSpectResXls" label="${tool.name}_XLS" format="tabular" />
+    <data name="massBankSpectResJson" label="${tool.name}_JSON" format="vjson" />
+  </outputs>
+
+  <help>
+
+.. class:: infomark
+
+**Wrapping**
+  | Marion Landi - FLAME ; PFEM ; INRA ; MetaboHUB (for xml interface and R wrapper)
+  | Franck Giacomoni - PFEM ; INRA ; MetaboHUB (for xml interface and R wrapper)
+
+---------------------------------------------------
+
+.. class:: infomark
+
+**Please cite** If you use this tool, please cite MassBank.
+
+for `MassBank. &lt;http://www.massbank.jp&gt;`_ :
+  `H. Horai, M. Arita, S. Kanaya, Y. Nihei, T. Ikeda, K. Suwa. Y. Ojima, K. Tanaka, S. Tanaka, K. Aoshima, Y. Oda, Y. Kakazu, M. Kusano, T. Tohge, F. Matsuda, Y. Sawada, M. Yokota Hirai, H. Nakanishi, K. Ikeda, N. Akimoto, T. Maoka, H. Takahashi, T. Ara, N. Sakurai, H. Suzuki, D. Shibata, S. Neumann, T. Iida, K. Tanaka, K. Funatsu, F. Matsuura, T. Soga, R. Taguchi, K. Saito and T. Nishioka, (2010). "MassBank: A public repository for sharing mass spectral data for life sciences." J. Mass Spectrom., 45, 703-714. &lt;http://www.ncbi.nlm.nih.gov/pubmed/20623627&gt;`_
+
+  </help>
+      <!-- [RECOMMANDED] All citations associated to this tool (main citation given above and other references). Can be extracted from the history panel -->
+    <citations>
+        <citation type="doi">10.1002/jms.1777</citation>
+    </citations>
+
+==============
+wsdl_MassBank
+==============
+
+-----------
+Description
+-----------
+
+Finding information in the MassBank project via a web service from masses.
+
+-----------------
+Workflow position
+-----------------
+
+
+.. image:: ./static/images/metabolomics/massbank-ws.png
+        :width: 800
+
+
+-----------
+Input files
+-----------
+
++-------------------------+-----------+
+| Parameter : num + label |  Format   |
++=========================+===========+
+| 1 : variableMetadata    |  tabular  |
++-------------------------+-----------+
+
+File variableMetadata must have at least the 2 following column : 
+	* Id : column to identify masses in the csv/tsv input file
+	* Masses : column with all the masses in the csv/tsv input file
+
+
+----------
+Parameters
+----------
+
+Would you use a file
+	| Choose whether the masses are in a file or entered manually
+	| YES (default) : parameters **File of masses ; Column of Id ; Number of header ; Column of masses** are visible
+	| NO : parameter **Mass of the molecule** is visible
+	|
+
+If 'use file'='YES'
+
+Column of Id
+	| Specify the column number for the id in the csv/tsv input file
+	|
+
+Number of header lines
+	| Number of lines not containing values 
+	|
+
+Column of masses
+	| Specify the column number for the mass in the csv/tsv input file
+	|
+
+If 'use file'='NO'
+
+Mass of the molecule
+	| Specify a list of mass to request one or more mass(es) entered manually
+	| For a masses list, writes : m1,m2,m3
+	| you must separate yours values with coma (,)
+	| dot (.) is for float number
+	|
+
+Delta of mass (mmu)
+	| Specify a delta (+/-) to the mass to search
+
+------------
+Output files
+------------
+
+Two types of files
+	| MassBank_VIEW.HTML : for viewing result via HTML.
+	| MassBank_TSV.tabular : for linking with others modules.
+	| an excel-like output will be available. 
+	
+---------------------------------------------------
+
+
+---------------
+Working example
+---------------
+
+
+.. class:: warningmark
+
+The corresponding "Page" coming soon.
+	
+
+</tool>
