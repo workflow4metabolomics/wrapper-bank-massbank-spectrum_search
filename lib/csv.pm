@@ -143,7 +143,7 @@ sub get_value_from_csv_multi_header {
 	
 	while (<CSV>) {
 		$line++ ;
-	    chop $_ ;
+	    chomp $_ ;
 		# file has a header
 		if ( defined $is_header and $is_header eq 'yes') { if ($line <= $nb_header) { next ; } }
 		# parsing the targeted column
