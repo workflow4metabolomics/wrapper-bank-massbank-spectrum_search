@@ -9,8 +9,8 @@
         -lineheader="${header.nbheader}"
       #end if
       -col_mz="$col_mass" -col_pcgroup="$col_pcgroup"
-      #if str($intencity.colint_choice) == "True":
-        -col_int="${intencity.col_int}"
+      #if str($intensity.colint_choice) == "True":
+        -col_int="${intensity.col_int}"
       #end if
       #if str($mode) == "Positive,Negative":
         -mode="both"
@@ -42,10 +42,10 @@
     </conditional>
     <param name="col_mass" label="Column of masses (MZ)" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
     <param name="col_pcgroup" label="Column of pcgroup" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
-    <conditional name="intencity">
-      <param name="colint_choice" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Do you have a column of Intencity?" help="if 'YES' is selected then indicate your column of Intencity" />
+    <conditional name="intensity">
+      <param name="colint_choice" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Do you have a column of intensity?" help="if 'YES' is selected then indicate your column of intensity" />
       <when value="yes">
-        <param name="col_int" label="Column of Intencity" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+        <param name="col_int" label="Column of intensity" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
       </when>
       <when value="no"/>
     </conditional>
@@ -53,6 +53,7 @@
       <option value="Positive" selected="True">Positif Mode</option>
       <option value="Negative" selected="True">Negatif Mode</option>
     </param>
+    <param name="score_threshold" label="Score threshold to apply on returned MassBank results" type="float" value="0.5" min="0" max="1" help="Default value is 0.5."/>
     <conditional name="advanced">
       <param name="advanced_settings" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Show advanced settings?" help="if 'NO' is selected then defaults values are: instruments => all ; max => 10 ; unit => unit ; tolerance => 0.3 ; cutoff => 50 ; server => JP" />
       <when value="yes">
