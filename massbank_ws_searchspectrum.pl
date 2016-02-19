@@ -233,14 +233,13 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 my $omap = lib::mapper->new() ;
 my $cleaned_pcgroups = $omap->filter_pcgroup_res($pcgroups, $score_threshold) ;
 
+
+
+
+
 ## Output writting :
 my ( $massbank_matrix ) = ( undef ) ;
-## JSON output
-if (  (defined $out_json) and  (defined $cleaned_pcgroups) ) {
-	
-	
-	
-}
+
 ## CSV OUTPUT
 if (  (defined $out_csv) and  (defined $cleaned_pcgroups) and  (defined $pcs) ) {
 	my $omapper = lib::mapper->new() ;
