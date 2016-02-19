@@ -18,8 +18,8 @@ use lib::massbank_main_Test qw( :ALL ) ;
 
 
 ## To launch the right sequence : API, MAPPER, THREADER, ...
-#my $sequence = 'MAPPER' ; 
-my $sequence = 'MAIN' ; 
+my $sequence = 'MAPPER' ; 
+#my $sequence = 'MAIN' ; 
 my $current_test = 1 ;
 my $server = 'JP' ;
 
@@ -225,7 +225,27 @@ elsif ($sequence eq "MAPPER") {
 	], ## end results
 	'Method \'add_massbank_matrix_to_input_matrix\' works with two wel formatted matrix and return the right csv matrix');
 	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	## ARGVTS : $pcgroups_object, threshold
+	sleep 1 ; print "\n** Test $current_test filter_pcgroup_res with pcgroups object and a threshold **\n" ; $current_test++ ; 
+	is_deeply( filter_pcgroup_resTest (
+		{ '1' => { 'massbank_ids' => ['MB0004', 'MB0005', 'MB0008'], 'annotation' => {'res' => [ {'score' => 0.4, 'id' => 'MB0004'}, {'score' => 0.8, 'id' => 'MB0008' }, {'score' => 0.5, 'id' => 'MB0005' } ], 'num_res' => 3 } }, '2' => { 'massbank_ids' => ['MB0004', 'MB0008', 'MB0007'], 'annotation' => {'res' => [{'score' => 0.4, 'id' => 'MB0004'}, {'score' => 0.8, 'id' => 'MB0008'}, {'score' => 0.7, 'id' => 'MB0007'} ], 'num_res' => 3 } } }, 
+		0.5
+	), ## end argvts
+	{ '1' => { 'massbank_ids' => ['MB0005', 'MB0008'], 'annotation' => { 'res' => [ {'score' => 0.5, 'id' => 'MB0005' }, {'score' => 0.8, 'id' => 'MB0008'} ], 'num_res' => 2 } }, '2' => { 'massbank_ids' => ['MB0007', 'MB0008'], 'annotation' => {'res' => [{'score' => 0.7, 'id' => 'MB0007' }, {'score' => 0.8, 'id' => 'MB0008' } ], 'num_res' => 2 } } },
+	## end results
+	'Method \'filter_pcgroup_resTest\' works with well formated pcgroups object and a float for threshold');
 	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	## ARGVTS : $pcgroups_object, threshold
+	sleep 1 ; print "\n** Test $current_test filter_pcgroup_res with pcgroups object and a threshold **\n" ; $current_test++ ; 
+	is_deeply( filter_pcgroup_resTest (
+		{ '1' => { 'massbank_ids' => [], 'annotation' => {'res' => [ ], 'num_res' => 1 } }, '2' => { 'massbank_ids' => [], 'annotation' => {'res' => [ ], 'num_res' => 1 } } }, 
+		0.5
+	), ## end argvts
+	{ '1' => { 'massbank_ids' => [], 'annotation' => { 'res' => [ ], 'num_res' => 0 } }, '2' => { 'massbank_ids' => [], 'annotation' => {'res' => [ ], 'num_res' => 0 } } },
+	## end results
+	'Method \'filter_pcgroup_resTest\' works with an empty pcgroups object and a float for threshold');
 	
 	
 #### #### ##### ###### ################################################ ###### ##### ##### ###### ######
