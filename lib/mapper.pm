@@ -11,8 +11,8 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json);
-our %EXPORT_TAGS = ( ALL => [qw( get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json)] );
+our @EXPORT = qw( filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json);
+our %EXPORT_TAGS = ( ALL => [qw( filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json)] );
 
 =head1 NAME
 
@@ -122,6 +122,47 @@ sub get_pcgroup_list {
 	return (\@pcgroup_list) ;
 }
 
+### END of SUB
+
+
+=head2 METHOD filter_pcgroup_res
+
+	## Description : This method filter the results returned by massbank with a user defined score threshold
+	## Input : $pcgroups, $threshold
+	## Output : $pcgroups
+	## Usage : my ( $pcgroups ) = filter_pcgroup_res ( $pcgroups, $threshold ) ;
+	
+=cut
+## START of SUB
+sub filter_pcgroup_res {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $pcgroups, $threshold ) = @_ ;
+
+    my %temp = () ;
+
+	if ( (defined $pcgroups) and (defined $threshold) ) {
+		%temp = %{$pcgroups} ;
+		
+		foreach my $pc (keys %temp) {
+			
+			if ( $temp{$pc}{'annotation'}{'res'} ) {
+				my @filtered_annot = reverse(grep { $_->{'score'} >= $threshold } @{$temp{$pc}{'annotation'}{'res'}}) ;
+				my $new_num_res = scalar (@filtered_annot) ;
+				my @ids = () ;
+				foreach (@filtered_annot) { push (@ids, $_->{'id'} ) }
+				$temp{$pc}{'annotation'}{'res'} =\@filtered_annot ;
+				$temp{$pc}{'annotation'}{'num_res'}  = $new_num_res ;
+				$temp{$pc}{'massbank_ids'} = \@ids ;
+			}
+			else {
+				warn "No result found for this pcgroup\n" ;
+			}
+		}
+	} ## End IF
+
+    return (\%temp) ;
+}
 ### END of SUB
 
 =head2 METHOD set_massbank_matrix_object
