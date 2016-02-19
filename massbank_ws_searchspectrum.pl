@@ -39,7 +39,7 @@ use lib::writter qw(:ALL) ;
 ## Initialized values
 my ($help, $mzs_file, $col_mz, $col_int, $col_pcgroup, $line_header ) = ( undef, undef, undef, undef, undef,undef, undef ) ;
 my $mass = undef ;
-my ($server, $ion_mode, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef ) ;
+my ($server, $ion_mode, $score_threshold, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef, undef ) ;
 my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
 
 ## Local values ONLY FOR TEST :
@@ -49,22 +49,23 @@ my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
 #=============================================================================
 #                                Manage EXCEPTIONS
 #=============================================================================
-&GetOptions ( 	"help|h"     	=> \$help,       # HELP
-				"masses:s"		=> \$mzs_file,
-				"col_mz:i"		=> \$col_mz,
-				"col_int:i"		=> \$col_int, ## optionnal
-				"col_pcgroup:i"	=> \$col_pcgroup,
-				"lineheader:i"	=> \$line_header,
-				"mode:s"		=> \$ion_mode, 
-				"instruments:s"	=> \$instruments, # advanced -> to transform into string with comma => done !
-				"max:i"			=> \$max, # advanced
-				"unit:s"		=> \$unit, # advanced
-				"tolerance:f"	=> \$tol, 
-				"cutoff:i"		=> \$cutoff, # advanced
-				"server:s"		=> \$server, ## by default JP and # advanced
-				"json:s"		=> \$out_json,
-				"xls:s"			=> \$out_xls,
-				"csv:s"			=> \$out_csv,
+&GetOptions ( 	"help|h"     		=> \$help,       # HELP
+				"masses:s"			=> \$mzs_file,
+				"col_mz:i"			=> \$col_mz,
+				"col_int:i"			=> \$col_int, ## optionnal
+				"col_pcgroup:i"		=> \$col_pcgroup,
+				"lineheader:i"		=> \$line_header,
+				"mode:s"			=> \$ion_mode, 
+				"score_threshold:f"	=> \$score_threshold, 
+				"instruments:s"		=> \$instruments, # advanced -> to transform into string with comma => done !
+				"max:i"				=> \$max, # advanced
+				"unit:s"			=> \$unit, # advanced
+				"tolerance:f"		=> \$tol, 
+				"cutoff:i"			=> \$cutoff, # advanced : intensity cutoff
+				"server:s"			=> \$server, ## by default JP and # advanced
+				"json:s"			=> \$out_json,
+				"xls:s"				=> \$out_xls,
+				"csv:s"				=> \$out_csv,
             ) ;
          
 ## if you put the option -help or -h function help is started
@@ -228,32 +229,36 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 } ## End of elsif "defined $mzs_file"
 
 
+## Clean zone - use threshold on massbank entry returned score
+my $omap = lib::mapper->new() ;
+my $cleaned_pcgroups = $omap->filter_pcgroup_res($pcgroups, $score_threshold) ;
+
 ## Output writting :
 my ( $massbank_matrix ) = ( undef ) ;
 ## JSON output
-if (  (defined $out_json) and  (defined $pcgroups) ) {
+if (  (defined $out_json) and  (defined $cleaned_pcgroups) ) {
 	
 	
 	
 }
 ## CSV OUTPUT
-if (  (defined $out_csv) and  (defined $pcgroups) and  (defined $pcs) ) {
+if (  (defined $out_csv) and  (defined $cleaned_pcgroups) and  (defined $pcs) ) {
 	my $omapper = lib::mapper->new() ;
-	if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $pcgroups ) ; }
-	elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $pcgroups ) ; }
+	if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $cleaned_pcgroups ) ; }
+	elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $cleaned_pcgroups ) ; }
 	$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
 	my $owritter = lib::writter->new() ;
 	$owritter->write_csv_skel(\$out_csv, $massbank_matrix) ;
 }
 ## XLS OUTPUT 
-if (  (defined $out_xls) and  (defined $pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+if (  (defined $out_xls) and  (defined $cleaned_pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
 	my $owritter = lib::writter->new() ;
-	$owritter->write_xls_skel(\$out_xls, $mzs, $pcs, $pcgroups) ;
+	$owritter->write_xls_skel(\$out_xls, $mzs, $pcs, $cleaned_pcgroups) ;
 }
 ## JSON OUTPUT 
-if (  (defined $out_json) and  (defined $pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+if (  (defined $out_json) and  (defined $cleaned_pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
 	my $omapper = lib::mapper->new() ;
-	my $json_scalar = $omapper->map_pc_to_generic_json($pcs, $pcgroups) ;
+	my $json_scalar = $omapper->map_pc_to_generic_json($pcs, $cleaned_pcgroups) ;
 	my $owritter = lib::writter->new() ;
 	$owritter->write_json_skel(\$out_json, $json_scalar) ;
 }
@@ -288,6 +293,7 @@ USAGE :
 		massbank_ws_searchspectrum.pl 
 			-masses [name of input file] -col_id -col_mz -col_int -col_pcgroup -lineheader
 			-mode [ion mode : Positive, Negative or Both ]
+			-score_threshold [Ignore Massbank results with a score lower than the defined threshold]
 			-instruments [array of string: all or values obtained by getInstrumentTypes method]
 			-max [0 is all results or int]
 			-unit [unit or ppm]
