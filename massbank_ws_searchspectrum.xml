@@ -1,6 +1,6 @@
-<tool id="massbank_ws_searchspectrum" name="MassBank search spectrum" version="2015-08-28">
+<tool id="massbank_ws_searchspectrum" name="MassBank spectrum searches" version="2016-02-19">
   <description>
-       : High Quality Mass Spectral Database.
+       : Search by pseudo-spectra on a High Quality Mass Spectral Database.
   </description>
   <command interpreter="perl">
     massbank_ws_searchspectrum.pl
@@ -8,7 +8,7 @@
       #if str($header.header_choice) == "True":
         -lineheader="${header.nbheader}"
       #end if
-      -col_mz="$col_mass" -col_pcgroup="$col_pcgroup"
+      -col_mz="$col_mass" -col_pcgroup="$col_pcgroup" -score_threshold="$score_threshold"
       #if str($intensity.colint_choice) == "True":
         -col_int="${intensity.col_int}"
       #end if
