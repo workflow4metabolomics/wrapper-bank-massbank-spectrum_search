@@ -11,8 +11,8 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json);
-our %EXPORT_TAGS = ( ALL => [qw( filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json)] );
+our @EXPORT = qw( get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json);
+our %EXPORT_TAGS = ( ALL => [qw( get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json)] );
 
 =head1 NAME
 
@@ -192,6 +192,54 @@ sub compute_ids_from_pcgroups_res {
 		@unique = sort { $a cmp $b } @unique;
 	}
     return (\@unique) ;
+}
+### END of SUB
+
+
+=head2 METHOD get_massbank_records_by_chunk
+
+	## Description : get massbank records from a complete list but send queries chunk by chunk.
+	## Input : $ids, $chunk_size
+	## Output : $records
+	## Usage : my ( $records ) = get_massbank_records_by_chunk ( $ids, $chunk_size ) ;
+	
+=cut
+## START of SUB
+sub get_massbank_records_by_chunk {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $ids, $chunk_size ) = @_;
+    my ( @records, @sent_ids ) = ( (), () ) ;
+    
+    my $current = 0 ;
+    my $pos = 0 ; 
+    my @temp_ids = () ;
+    
+    my $num_ids = scalar(@{$ids}) ;
+    
+    foreach my $id (@{$ids}) {
+    	
+    	if ($pos < $chunk_size) {
+    		push (@temp_ids, $id) ;
+    		$pos ++ ;
+    	}
+    	elsif ( ($pos == $chunk_size) or ($current == $num_ids-1)  ) {
+    		push (@temp_ids, $id) ;
+    		## send query
+    		my $omassbank = lib::massbank_api->new() ;
+			my ($osoap) = $omassbank->selectMassBank('JP') ;
+			my ($records) = $omassbank->getRecordInfo($osoap, \@temp_ids) ;
+			push (@records, @{$records}) ;
+    		
+    		@temp_ids = () ; 
+    		$pos = 0 ;
+    	}
+    	else {
+    		warn "Something goes wrong : out of range\n"
+    	}
+    	$current++ ;
+    }
+    return (\@records) ;
 }
 ### END of SUB
 
