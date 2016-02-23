@@ -224,7 +224,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	else {
 		croak "The pcgroup object is not defined\n" ;
 	}
-	print Dumper $pcgroups ;
+#	print Dumper $pcgroups ;
 	
 } ## End of elsif "defined $mzs_file"
 
@@ -233,9 +233,17 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 my $omap = lib::mapper->new() ;
 my $cleaned_pcgroups = $omap->filter_pcgroup_res($pcgroups, $score_threshold) ;
 
+print Dumper $cleaned_pcgroups ;
 
+## get all unique Massbank Ids found
+my $oids = lib::mapper->new() ;
+my $all_massbank_ids = $omap->compute_ids_from_pcgroups_res($cleaned_pcgroups) ;
 
+## get entries on the MassBank server by ID by pieces of 20
+my $omapper = lib::mapper->new() ;
+my $records = $omapper->get_massbank_records_by_chunk ($all_massbank_ids, 10) ;
 
+print Dumper $records ;
 
 ## Output writting :
 my ( $massbank_matrix ) = ( undef ) ;
