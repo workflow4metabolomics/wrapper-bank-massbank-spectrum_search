@@ -10,8 +10,8 @@ use Data::Dumper ;
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( filter_pcgroup_resTest get_pcgroup_listTest get_pcgroupsTest set_massbank_matrix_objectTest add_massbank_matrix_to_input_matrixTest);
-our %EXPORT_TAGS = ( ALL => [qw(filter_pcgroup_resTest get_pcgroup_listTest get_pcgroupsTest set_massbank_matrix_objectTest add_massbank_matrix_to_input_matrixTest)] );
+our @EXPORT = qw( get_massbank_records_by_chunkTest compute_ids_from_pcgroups_resTest filter_pcgroup_resTest get_pcgroup_listTest get_pcgroupsTest set_massbank_matrix_objectTest add_massbank_matrix_to_input_matrixTest);
+our %EXPORT_TAGS = ( ALL => [qw(get_massbank_records_by_chunkTest compute_ids_from_pcgroups_resTest filter_pcgroup_resTest get_pcgroup_listTest get_pcgroupsTest set_massbank_matrix_objectTest add_massbank_matrix_to_input_matrixTest)] );
 
 use lib '/Users/fgiacomoni/Inra/labs/perl/galaxy_tools/massbank_ws_searchspectrum' ;
 use lib::mapper qw( :ALL ) ;
@@ -60,6 +60,33 @@ sub filter_pcgroup_resTest {
     $cleaned_pcgroups = $omap->filter_pcgroup_res($pcgroups, $threshold) ;
     
     return($cleaned_pcgroups) ;
+}
+## End SUB
+
+## SUB TEST for 
+sub compute_ids_from_pcgroups_resTest {
+    # get values
+    my ( $pcgroups ) = @_;
+    my $ids = () ;
+    
+    my $var2 = lib::mapper->new() ;
+    $ids = $var2->compute_ids_from_pcgroups_res($pcgroups) ;
+    
+    return($ids) ;
+}
+## End SUB
+
+## SUB TEST for 
+sub get_massbank_records_by_chunkTest {
+    # get values
+    my ( $ids, $chunk_size ) = @_;
+    
+    my $var2 = lib::mapper->new() ;
+    my $records = $var2->get_massbank_records_by_chunk ($ids, $chunk_size) ;
+    
+#    print Dumper $records ;
+    
+    return($records) ;
 }
 ## End SUB
 
