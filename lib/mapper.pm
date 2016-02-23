@@ -165,6 +165,36 @@ sub filter_pcgroup_res {
 }
 ### END of SUB
 
+
+=head2 METHOD compute_ids_from_pcgroups_res
+
+	## Description : get all ids returned by massbank with sent queries and keep only unique ones.
+	## Input : $pcgroups
+	## Output : $unique_ids
+	## Usage : my ( $unique_ids ) = compute_ids_from_pcgroups_res ( $pcgroups ) ;
+	
+=cut
+## START of SUB
+sub compute_ids_from_pcgroups_res {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $pcgroups ) = @_;
+    my ( @ids, @unique ) = ( (), () ) ;
+    
+    if ( defined $pcgroups ) {
+		
+		foreach my $pc ( keys %{$pcgroups} ) {
+			if ( $pcgroups->{$pc}{'massbank_ids'} ) {
+				push (@ids , @{ $pcgroups->{$pc}{'massbank_ids'} } ) ;
+			}
+		}
+		@unique = do { my %seen; grep { !$seen{$_}++ } @ids };
+		@unique = sort { $a cmp $b } @unique;
+	}
+    return (\@unique) ;
+}
+### END of SUB
+
 =head2 METHOD set_massbank_matrix_object
 
 	## Description : build the massbank_row under its ref form
