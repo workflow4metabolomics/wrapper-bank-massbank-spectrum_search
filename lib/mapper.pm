@@ -140,27 +140,33 @@ sub filter_pcgroup_res {
     my ( $pcgroups, $threshold ) = @_ ;
 
     my %temp = () ;
+    
+    if (!defined $threshold) {
+    	$threshold = 0.5 ; ## default value
+    }
 
 	if ( (defined $pcgroups) and (defined $threshold) ) {
 		%temp = %{$pcgroups} ;
 		
 		foreach my $pc (keys %temp) {
 			
-			if ( $temp{$pc}{'annotation'}{'res'} ) {
-				my @filtered_annot = reverse(grep { $_->{'score'} >= $threshold } @{$temp{$pc}{'annotation'}{'res'}}) ;
-				my $new_num_res = scalar (@filtered_annot) ;
-				my @ids = () ;
-				foreach (@filtered_annot) { push (@ids, $_->{'id'} ) }
-				$temp{$pc}{'annotation'}{'res'} =\@filtered_annot ;
-				$temp{$pc}{'annotation'}{'num_res'}  = $new_num_res ;
-				$temp{$pc}{'massbank_ids'} = \@ids ;
+			if ( $temp{$pc}{'annotation'}{'num_res'} > 0 ) {
+					my @filtered_annot = reverse(grep { $_->{'score'} >= $threshold if ($_->{'score'})  } @{$temp{$pc}{'annotation'}{'res'}}) ;
+					my $new_num_res = scalar (@filtered_annot) ;
+					my @ids = () ;
+					foreach (@filtered_annot) { push (@ids, $_->{'id'} ) }
+					$temp{$pc}{'annotation'}{'res'} =\@filtered_annot ;
+					$temp{$pc}{'annotation'}{'num_res'}  = $new_num_res ;
+					$temp{$pc}{'massbank_ids'} = \@ids ;
 			}
 			else {
 				warn "No result found for this pcgroup\n" ;
 			}
 		}
 	} ## End IF
-
+	else {
+		warn "No pcgroup and threshold defined\n" ;
+	}
     return (\%temp) ;
 }
 ### END of SUB
