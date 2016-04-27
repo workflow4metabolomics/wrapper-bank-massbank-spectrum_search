@@ -215,6 +215,59 @@ sub getRecordInfo() {
 }
 ### END of SUB
 
+=head2 METHOD initRecordObject
+
+	## Description : init a massbank record object from a string
+	## Input : $string
+	## Output : $orecord
+	## Usage : my ( $orecord ) = initRecordObject ( $string ) ;
+	
+=cut
+## START of SUB
+sub initRecordObject {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $string ) = @_;
+    my ( %orecord ) = ( () ) ;
+    
+    if (defined $string) {
+    	my $pkcheck = 0 ;
+    	my (@mzs, @int, @relint) = ( (), (), () ) ;
+    	my @features = split(/\n/, $string) ;
+
+    	foreach (@features) {
+    		## for all key:value
+    		## todo : known issue with "COMMENT" part (wrong split)
+    		if ($_ =~ /(.+):(.+)/) {
+    			my ($key, $string)  = ($1, $2 );
+    			$string =~ s/^\s+|\s+$//g;
+    			$orecord{$key} = $string ;
+    			if ($key =~/^PK\$PEAK/) {
+    				$pkcheck = 1 ;
+    				(@mzs, @int, @relint) = ( (), (), () ) ;
+    			}
+    		}
+    		elsif ($pkcheck == 1) {
+    			## case 01 : m/z int. rel.int.
+    			if ($_ =~ /\s+(.+)\s+(.+)\s+(.+)/) {
+    				push (@mzs, $1) ; push (@int, $2) ; push (@relint, $3) ;
+    			}
+    		}
+    	}
+    	## init mzs, int and relint
+    	my %tmp = () ;
+    	$tmp{'mz'} =  \@mzs ;
+    	$tmp{'int'} =  \@int ;
+    	$tmp{'relint'} =  \@relint ;
+    	$orecord{'PK$PEAK'} = \%tmp ;
+    }
+    else {
+    	warn "The given massbank string is undef\n" ;
+    }
+    
+    return (\%orecord) ;
+}
+### END of SUB
 
 
 =head2 METHOD getPeakFromId
