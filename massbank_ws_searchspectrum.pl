@@ -241,8 +241,7 @@ my $all_massbank_ids = $omap->compute_ids_from_pcgroups_res($cleaned_pcgroups) ;
 
 ## get entries on the MassBank server by ID by pieces of 20
 my $omapper = lib::mapper->new() ;
-my $records = $omapper->get_massbank_records_by_chunk ($all_massbank_ids, 10) ;
-
+my $records = $omapper->get_massbank_records_by_chunk ($server, $all_massbank_ids, 10) ;
 print Dumper $records ;
 
 ## Output writting :

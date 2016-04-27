@@ -208,7 +208,7 @@ sub compute_ids_from_pcgroups_res {
 sub get_massbank_records_by_chunk {
     ## Retrieve Values
     my $self = shift ;
-    my ( $ids, $chunk_size ) = @_;
+    my ( $server, $ids, $chunk_size ) = @_;
     my ( @records, @sent_ids ) = ( (), () ) ;
     
     my $current = 0 ;
@@ -227,7 +227,7 @@ sub get_massbank_records_by_chunk {
     		push (@temp_ids, $id) ;
     		## send query
     		my $omassbank = lib::massbank_api->new() ;
-			my ($osoap) = $omassbank->selectMassBank('JP') ;
+			my ($osoap) = $omassbank->selectMassBank($server) ;
 			my ($records) = $omassbank->getRecordInfo($osoap, \@temp_ids) ;
 			push (@records, @{$records}) ;
     		
