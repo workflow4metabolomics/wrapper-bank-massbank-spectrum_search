@@ -10,8 +10,8 @@ use Data::Dumper ;
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw(   threading_methods_getRecordInfoTest connectMassBankTest connectMassBankJPTest connectMassBankDETest getInstrumentTypesTest getRecordInfoTest searchSpectrumTest searchSpectrumNBTest getPeakTest);
-our %EXPORT_TAGS = ( ALL => [qw(  threading_methods_getRecordInfoTest connectMassBankTest connectMassBankJPTest connectMassBankDETest getInstrumentTypesTest getRecordInfoTest searchSpectrumTest searchSpectrumNBTest getPeakTest)] );
+our @EXPORT = qw(   initRecordObjectTest threading_methods_getRecordInfoTest connectMassBankTest connectMassBankJPTest connectMassBankDETest getInstrumentTypesTest getRecordInfoTest searchSpectrumTest searchSpectrumNBTest getPeakTest);
+our %EXPORT_TAGS = ( ALL => [qw(  initRecordObjectTest threading_methods_getRecordInfoTest connectMassBankTest connectMassBankJPTest connectMassBankDETest getInstrumentTypesTest getRecordInfoTest searchSpectrumTest searchSpectrumNBTest getPeakTest)] );
 
 use lib '/Users/fgiacomoni/Inra/labs/perl/galaxy_tools/massbank_ws_searchspectrum' ;
 use lib::massbank_api qw( :ALL ) ;
@@ -102,6 +102,18 @@ sub threading_methods_getRecordInfoTest {
 	$results = $othreads->threading_getRecordInfo($osoap, $ids) ; 
 	return($results) ;
 }
+
+## SUB TEST for initRecordObject
+sub initRecordObjectTest {
+    # get values
+    my ( $string ) = @_;
+    
+    my $omassbank = lib::massbank_api->new() ;
+    my $record = $omassbank->initRecordObject($string) ;
+    print Dumper $record ;
+    return($record) ;
+}
+## End SUB
 
 
 1 ;
