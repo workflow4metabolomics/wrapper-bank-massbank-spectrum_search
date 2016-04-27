@@ -192,7 +192,10 @@ sub getRecordInfo() {
 				warn "\t\t WARN: The query Id is false, MassBank don't find any record\n" ;
 			}
 			else {
-				if ($som->valueof('//info') ne '') { # avoid to fill array with false id returning '' value
+				if (!defined $som->valueof('//info')) {
+					warn "\t\t WARN: The query Id is undef, and MassBank won't find any record\n" ;
+				}
+				elsif ($som->valueof('//info') ne '') { # avoid to fill array with false id returning '' value
 					@dats = $som->valueof('//info');	
 				}
 				else {
