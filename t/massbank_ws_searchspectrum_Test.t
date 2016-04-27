@@ -27,59 +27,59 @@ if ($sequence eq "MAIN") {
 	print "\n\t\t\t\t  * * * * * * \n" ;
 	print "\t  * * * - - - Test MassBank Main script - - - * * * \n\n" ;
 		## Test NORMAL file  => OK
-#	    ok( run_main_massbank_pl(
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/pcgrp_annot.tsv', 
-#	    	1, 14, 7, 1, 
-#	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'JP',
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.json', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.csv', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.xls'),
-#	    'Main script massbank_ws_searchspectrum.pl with is running and manage normal data (mz, ) ' );
+	    ok( run_main_massbank_pl(
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/pcgrp_annot.tsv', 
+	    	1, 14, 7, 1, 0.5,
+	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'EU',
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.json', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.csv', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out1.xls'),
+	    'Main script massbank_ws_searchspectrum.pl with is running and manage normal data (mz, ) ' );
 	    
 	    ## Test BUG file wih relative intensities => OK
-#	    ok( run_main_massbank_pl(
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/261-pcgroups-mz-relative_int.tsv', 
-#	    	'2', '1', '3', '1', 
-#	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'JP',
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.json', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.csv', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.xls'),
-#	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
+	    ok( run_main_massbank_pl(
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/261-pcgroups-mz-relative_int.tsv', 
+	    	'2', '1', '3', '1', 0.5,
+	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'JP',
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.json', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.csv', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out2.xls'),
+	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
 	    
 	     ## Test BUG file wih real intensities (>10000) => OK
-#	    ok( run_main_massbank_pl(
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/2214-mz-int-pcgroups.tsv', 
-#	    	'1', '3', '2', '1', 
-#	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'JP',
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.json', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.csv', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.xls'),
-#	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
+	    ok( run_main_massbank_pl(
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/2214-mz-int-pcgroups.tsv', 
+	    	'1', '3', '2', '1', 0.5,
+	    	'Positive', 'all', 2, 'unit', 0.3, 5, 'JP',
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.json', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.csv', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out3.xls'),
+	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
 	    
 	    ## Test BUG file wih relative intensities and ppm / 15 / 5 => OK
-#	    ok( run_main_massbank_pl(
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/261-pcgroups-mz-relative_int.tsv', 
-#	    	'2', '1', '3', '1', 
-#	    	'Positive', 'all', 2, 'ppm', 15, 5, 'JP',
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.json', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.csv', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.xls'),
-#	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
+	    ok( run_main_massbank_pl(
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/261-pcgroups-mz-relative_int.tsv', 
+	    	'2', '1', '3', '1', 0.5,
+	    	'Positive', 'all', 2, 'ppm', 15, 5, 'JP',
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.json', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.csv', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out4.xls'),
+	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, relative int, ...)' );
 	    
 	    ## Test BUG file wih real intensities (>10000) and ppm / 15 / 5 + long file => OK
-#	    ok( run_main_massbank_pl(
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/2214-mz-int-pcgroups.tsv', 
-#	    	'1', '3', '2', '1', 
-#	    	'Positive', 'all', 2, 'ppm', 15, 5, 'JP',
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.json', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.csv', 
-#	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.xls'),
-#	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, int, ...)' );
+	    ok( run_main_massbank_pl(
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/2214-mz-int-pcgroups.tsv', 
+	    	'1', '3', '2', '1', 0.5,
+	    	'Positive', 'all', 2, 'ppm', 15, 5, 'JP',
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.json', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.csv', 
+	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out5.xls'),
+	    'Main script massbank_ws_searchspectrum.pl with is running and manage real file (mz, int, ...)' );
 	    
 	    ## Test BUG file wih real intensities (>10000) and ppm / 15 / 5 + long file -> parameters c5b5ac363f7bdb2d  => OK
 	    ok( run_main_massbank_pl(
 	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/2214-mz-int-pcgroups.tsv', 
-	    	'1', '3', '2', '1', 
+	    	'1', '3', '2', '1', 0.5,
 	    	'Positive', "LC-ESI-IT,LC-ESI-ITFT,LC-ESI-ITTOF,LC-ESI-Q,LC-ESI-QFT,LC-ESI-QIT,LC-ESI-QQ,LC-ESI-QTOF,LC-ESI-TOF", 10, 'ppm', 15, 5, 'JP',
 	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out6.json', 
 	    	'/Users/fgiacomoni/Inra/labs/tests/massbank_V02/out6.csv', 
@@ -248,6 +248,17 @@ elsif ($sequence eq "MAPPER") {
 	'Method \'filter_pcgroup_resTest\' works with an empty pcgroups object and a float for threshold');
 	
 	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	## ARGVTS : $pcgroups_object, threshold
+	sleep 1 ; print "\n** Test $current_test filter_pcgroup_res with pcgroups object but undef params and a threshold **\n" ; $current_test++ ; 
+	is_deeply( filter_pcgroup_resTest (
+		{ '1' => { 'massbank_ids' => [], 'annotation' => {'res' => [ {'score' => undef, 'id' => undef} ], 'num_res' => 0 } }, '2' => { 'massbank_ids' => ['MB0004', 'MB0008', 'MB0007'], 'annotation' => {'res' => [{'score' => 0.4, 'id' => 'MB0004'}, {'score' => 0.8, 'id' => 'MB0008'}, {'score' => 0.7, 'id' => 'MB0007'} ], 'num_res' => 3 } } }, 
+		0.5
+	), ## end argvts
+	{ '1' => { 'massbank_ids' => [], 'annotation' => { 'res' => [ {'score' => undef, 'id' => undef } ], 'num_res' => 0 } }, '2' => { 'massbank_ids' => ['MB0007', 'MB0008'], 'annotation' => {'res' => [{'score' => 0.7, 'id' => 'MB0007' }, {'score' => 0.8, 'id' => 'MB0008' } ], 'num_res' => 2 } } },
+	## end results
+	'Method \'filter_pcgroup_resTest\' works with well formated pcgroups object (but undef value) and a float for threshold');
+	
+	##		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	## ARGVTS : $pcgroups_object
 	sleep 1 ; print "\n** Test $current_test compute_ids_from_pcgroups_res with pcgroups object **\n" ; $current_test++ ; 
 	is_deeply( compute_ids_from_pcgroups_resTest (
@@ -262,6 +273,7 @@ elsif ($sequence eq "MAPPER") {
 	## ARGVTS : $massbank_ids, chunk_size
 	sleep 1 ; print "\n** Test $current_test get_massbank_records_by_chunk with ids list **\n" ; $current_test++ ; 
 	is_deeply( get_massbank_records_by_chunkTest (
+		'EU',
 		['KOX00002', 'KOX00003', 'FU000001', 'TY000040', 'TY000041', 'FU000002'],
 		2 
 	), ## end argvts
@@ -393,6 +405,60 @@ PK$PEAK: m/z int. rel.int.
   694.8 8.939e5 999
   695.4 5.537e4 62
 ',
+          'ACCESSION: FU000002
+RECORD_TITLE: 3-Man2GlcNAc; LC-ESI-QQ; MS2; CE:20V; Amide
+DATE: 2016.01.19 (Created 2009.02.18, modified 2011.05.06)
+AUTHORS: Matsuura F, Ohta M, Kittaka M, Faculty of Life Science and Biotechnology, Fukuyama University
+LICENSE: CC BY-SA
+CH$NAME: 3-Man2GlcNAc
+CH$NAME: Man-alpha-1-3Man-beta-1-5GlcNac
+CH$COMPOUND_CLASS: Natural Product; Oligosaccharide; N-linked glycan; High-mannose type
+CH$FORMULA: C20H35NO16
+CH$EXACT_MASS: 545.19558
+CH$SMILES: CC(=O)NC(C(O)1)C(O)C(OC(O2)C(O)C(OC(O3)C(O)C(O)C(O)C(CO)3)C(O)C(CO)2)C(CO)O1
+CH$IUPAC: InChI=1/C20H35NO16/c1-5(25)21-9-12(28)16(8(4-24)33-18(9)32)36-20-15(31)17(11(27)7(3-23)35-20)37-19-14(30)13(29)10(26)6(2-22)34-19/h6-20,22-24,26-32H,2-4H2,1H3,(H,21,25)/t6-,7-,8-,9-,10-,11-,12-,13+,14-,15+,16-,17+,18+,19-,20+/m1/s1/f/h21H
+CH$LINK: CHEMSPIDER 24606097
+CH$LINK: KEGG G00319
+CH$LINK: OligosaccharideDataBase man 547428
+CH$LINK: OligosaccharideDataBase2D map5 ODS=1.21 Amide=2.85
+AC$INSTRUMENT: 2695 HPLC Quadro Micro API, Waters
+AC$INSTRUMENT_TYPE: LC-ESI-QQ
+AC$MASS_SPECTROMETRY: MS_TYPE MS2
+AC$MASS_SPECTROMETRY: ION_MODE POSITIVE
+AC$MASS_SPECTROMETRY: COLLISION_ENERGY 20.0 V
+AC$MASS_SPECTROMETRY: DATAFORMAT Centroid
+AC$MASS_SPECTROMETRY: DESOLVATION_GAS_FLOW 897 L/Hr
+AC$MASS_SPECTROMETRY: DESOLVATION_TEMPERATURE 399 C
+AC$MASS_SPECTROMETRY: FRAGMENTATION_METHOD LOW-ENERGY CID
+AC$MASS_SPECTROMETRY: IONIZATION ESI
+AC$MASS_SPECTROMETRY: SCANNING 1 amu/sec (m/z = 20-2040)
+AC$MASS_SPECTROMETRY: SOURCE_TEMPERATURE 100C
+AC$CHROMATOGRAPHY: COLUMN_NAME TSK-GEL Amide-80 2.0 mm X 250 mm (TOSOH)
+AC$CHROMATOGRAPHY: COLUMN_TEMPERATURE 40 C
+AC$CHROMATOGRAPHY: FLOW_GRADIENT 74/26 at 0 min, 50/50 at 60 min.
+AC$CHROMATOGRAPHY: FLOW_RATE 0.2 ml/min
+AC$CHROMATOGRAPHY: RETENTION_TIME 7.088 min
+AC$CHROMATOGRAPHY: SAMPLING_CONE 43.10 V
+AC$CHROMATOGRAPHY: SOLVENT CH3CN/H2O
+MS$FOCUSED_ION: DERIVATIVE_FORM C29H46N2O17
+MS$FOCUSED_ION: DERIVATIVE_MASS 694.27965
+MS$FOCUSED_ION: DERIVATIVE_TYPE ABEE (p-Aminobenzoic acid ethyl ester)
+MS$FOCUSED_ION: PRECURSOR_M/Z 695.00
+MS$FOCUSED_ION: PRECURSOR_TYPE [M+H]+
+PK$SPLASH: splash10-000z0fb000-52e2618a90c53226e008
+PK$NUM_PEAK: 10
+PK$PEAK: m/z int. rel.int.
+  324.9 5.549e4 65
+  370.8 8.511e5 999
+  371.3 8.989e4 106
+  486.8 2.622e4 31
+  532.0 5.832e4 68
+  532.7 3.515e5 413
+  533.3 3.910e4 46
+  693.9 4.249e4 50
+  694.5 1.979e5 232
+  695.3 9.682e4 114
+',
           'ACCESSION: TY000040
 RECORD_TITLE: Aconitine; LC-ESI-ITTOF; MS; [M+H]+
 DATE: 2016.01.19 (Created 2008.10.10, modified 2011.05.06)
@@ -497,60 +563,6 @@ PK$NUM_PEAK: 2
 PK$PEAK: m/z int. rel.int.
   290.1754 109188681 999
   291.1762 21571851 197
-',
-          'ACCESSION: FU000002
-RECORD_TITLE: 3-Man2GlcNAc; LC-ESI-QQ; MS2; CE:20V; Amide
-DATE: 2016.01.19 (Created 2009.02.18, modified 2011.05.06)
-AUTHORS: Matsuura F, Ohta M, Kittaka M, Faculty of Life Science and Biotechnology, Fukuyama University
-LICENSE: CC BY-SA
-CH$NAME: 3-Man2GlcNAc
-CH$NAME: Man-alpha-1-3Man-beta-1-5GlcNac
-CH$COMPOUND_CLASS: Natural Product; Oligosaccharide; N-linked glycan; High-mannose type
-CH$FORMULA: C20H35NO16
-CH$EXACT_MASS: 545.19558
-CH$SMILES: CC(=O)NC(C(O)1)C(O)C(OC(O2)C(O)C(OC(O3)C(O)C(O)C(O)C(CO)3)C(O)C(CO)2)C(CO)O1
-CH$IUPAC: InChI=1/C20H35NO16/c1-5(25)21-9-12(28)16(8(4-24)33-18(9)32)36-20-15(31)17(11(27)7(3-23)35-20)37-19-14(30)13(29)10(26)6(2-22)34-19/h6-20,22-24,26-32H,2-4H2,1H3,(H,21,25)/t6-,7-,8-,9-,10-,11-,12-,13+,14-,15+,16-,17+,18+,19-,20+/m1/s1/f/h21H
-CH$LINK: CHEMSPIDER 24606097
-CH$LINK: KEGG G00319
-CH$LINK: OligosaccharideDataBase man 547428
-CH$LINK: OligosaccharideDataBase2D map5 ODS=1.21 Amide=2.85
-AC$INSTRUMENT: 2695 HPLC Quadro Micro API, Waters
-AC$INSTRUMENT_TYPE: LC-ESI-QQ
-AC$MASS_SPECTROMETRY: MS_TYPE MS2
-AC$MASS_SPECTROMETRY: ION_MODE POSITIVE
-AC$MASS_SPECTROMETRY: COLLISION_ENERGY 20.0 V
-AC$MASS_SPECTROMETRY: DATAFORMAT Centroid
-AC$MASS_SPECTROMETRY: DESOLVATION_GAS_FLOW 897 L/Hr
-AC$MASS_SPECTROMETRY: DESOLVATION_TEMPERATURE 399 C
-AC$MASS_SPECTROMETRY: FRAGMENTATION_METHOD LOW-ENERGY CID
-AC$MASS_SPECTROMETRY: IONIZATION ESI
-AC$MASS_SPECTROMETRY: SCANNING 1 amu/sec (m/z = 20-2040)
-AC$MASS_SPECTROMETRY: SOURCE_TEMPERATURE 100C
-AC$CHROMATOGRAPHY: COLUMN_NAME TSK-GEL Amide-80 2.0 mm X 250 mm (TOSOH)
-AC$CHROMATOGRAPHY: COLUMN_TEMPERATURE 40 C
-AC$CHROMATOGRAPHY: FLOW_GRADIENT 74/26 at 0 min, 50/50 at 60 min.
-AC$CHROMATOGRAPHY: FLOW_RATE 0.2 ml/min
-AC$CHROMATOGRAPHY: RETENTION_TIME 7.088 min
-AC$CHROMATOGRAPHY: SAMPLING_CONE 43.10 V
-AC$CHROMATOGRAPHY: SOLVENT CH3CN/H2O
-MS$FOCUSED_ION: DERIVATIVE_FORM C29H46N2O17
-MS$FOCUSED_ION: DERIVATIVE_MASS 694.27965
-MS$FOCUSED_ION: DERIVATIVE_TYPE ABEE (p-Aminobenzoic acid ethyl ester)
-MS$FOCUSED_ION: PRECURSOR_M/Z 695.00
-MS$FOCUSED_ION: PRECURSOR_TYPE [M+H]+
-PK$SPLASH: splash10-000z0fb000-52e2618a90c53226e008
-PK$NUM_PEAK: 10
-PK$PEAK: m/z int. rel.int.
-  324.9 5.549e4 65
-  370.8 8.511e5 999
-  371.3 8.989e4 106
-  486.8 2.622e4 31
-  532.0 5.832e4 68
-  532.7 3.515e5 413
-  533.3 3.910e4 46
-  693.9 4.249e4 50
-  694.5 1.979e5 232
-  695.3 9.682e4 114
 '
         ],
 	## end results

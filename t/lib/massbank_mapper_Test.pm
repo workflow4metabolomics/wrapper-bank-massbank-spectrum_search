@@ -79,10 +79,10 @@ sub compute_ids_from_pcgroups_resTest {
 ## SUB TEST for 
 sub get_massbank_records_by_chunkTest {
     # get values
-    my ( $ids, $chunk_size ) = @_;
+    my ( $server, $ids, $chunk_size ) = @_;
     
     my $var2 = lib::mapper->new() ;
-    my $records = $var2->get_massbank_records_by_chunk ($ids, $chunk_size) ;
+    my $records = $var2->get_massbank_records_by_chunk ($server, $ids, $chunk_size) ;
     
 #    print Dumper $records ;
     
