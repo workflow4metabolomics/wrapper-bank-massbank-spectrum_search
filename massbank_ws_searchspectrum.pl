@@ -33,6 +33,7 @@ use lib::massbank_api qw( :ALL ) ;
 use lib::threader qw(:ALL) ;
 use lib::mapper qw(:ALL) ;
 use lib::writter qw(:ALL) ;
+use lib::massbank_parser qw(:ALL) ;
 
 
 
@@ -224,25 +225,58 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	else {
 		croak "The pcgroup object is not defined\n" ;
 	}
+#	print "pcGroups results are\n"  ;
 #	print Dumper $pcgroups ;
 	
 } ## End of elsif "defined $mzs_file"
-
+else {
+	&help ;
+}
 
 ## Clean zone - use threshold on massbank entry returned score
 my $omap = lib::mapper->new() ;
 my $cleaned_pcgroups = $omap->filter_pcgroup_res($pcgroups, $score_threshold) ;
 
-print Dumper $cleaned_pcgroups ;
+#print "Cleaned_pcGroups are\n" ;
+#print Dumper $cleaned_pcgroups ;
+
+## add min/max value of each mzmed in the pc_group
+my $pcgroups_with_intervales = $omap->add_min_max_for_pcgroup_res($cleaned_pcgroups, $tol ) ;
+
+#print "pcGroups_with_intervales are\n" ;
+#print Dumper $pcgroups_with_intervales ;
+
+
+## search in the local indexed db - - - TODO - - - 
+
+## OR search new ones 
 
 ## get all unique Massbank Ids found
 my $oids = lib::mapper->new() ;
 my $all_massbank_ids = $omap->compute_ids_from_pcgroups_res($cleaned_pcgroups) ;
 
-## get entries on the MassBank server by ID by pieces of 20
+## get entries on the MassBank server by ID by pieces of 10
 my $omapper = lib::mapper->new() ;
 my $records = $omapper->get_massbank_records_by_chunk ($server, $all_massbank_ids, 10) ;
-print Dumper $records ;
+#print "\n\nRecords are\n" ;
+#print Dumper $records ;
+#print Dumper $all_massbank_ids ;
+
+## foreach record - get id and peaks - create a object
+my %records = ();
+foreach (@$records) {
+	## parse record handles
+	my $parser = lib::massbank_parser->new() ;
+	my $peaks = $parser->getPeaksFromString($_) ;
+	my $id = $parser->getIdFromString($_) ;
+	$records{$id} = $peaks ;
+}
+#print Dumper %records ;
+
+## Map pc_groups and records
+my $well_annoted_pcGroups = $omapper->mapGroupsWithRecords($pcgroups_with_intervales, \%records) ;
+
+print Dumper $well_annoted_pcGroups ;
 
 ## Output writting :
 my ( $massbank_matrix ) = ( undef ) ;
