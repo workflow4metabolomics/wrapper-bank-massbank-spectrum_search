@@ -219,6 +219,36 @@ sub add_min_max_for_pcgroup_res {
 
 
 
+=head2 METHOD min_and_max_from_double_with_delta
+
+	## Description : returns the minimum and maximum double according to the delta
+	## Input : \$double, \$delta_type, \$delta
+	## Output : \$min, \$max
+	## Usage : ($min, $max)= min_and_max_from_double_with_delta($double, $delta_type, $mz_delta) ;
+	
+=cut
+## START of SUB
+sub min_and_max_from_double_with_delta {
+	## Retrieve Values
+    my $self = shift ;
+    my ( $double, $delta_type, $delta ) = @_ ;
+    my ( $min, $max ) = ( undef, undef ) ;
+    
+	if ($delta_type eq 'ppm'){
+		$min = $double - ($delta * 10**-6 * $double);
+		$max = $double + ($delta * 10**-6 * $double) + 0.0000000001; ## it's to included the maximum value in the search
+	}
+	elsif ($delta_type eq 'Da'){
+		$min = $double - $delta;
+		$max = $double + $delta + 0.0000000001; ## it's to included the maximum value in the search
+	}
+	else {	croak "The double delta type '$delta_type' isn't a valid type !\n" ;	}
+	
+    return($min, $max) ;
+}
+## END of SUB
+
+
 =head2 METHOD compute_ids_from_pcgroups_res
 
 	## Description : get all ids returned by massbank with sent queries and keep only unique ones.
