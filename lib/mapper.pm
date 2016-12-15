@@ -11,8 +11,8 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json);
-our %EXPORT_TAGS = ( ALL => [qw( get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json)] );
+our @EXPORT = qw( add_min_max_for_pcgroup_res get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json);
+our %EXPORT_TAGS = ( ALL => [qw( add_min_max_for_pcgroup_res get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json)] );
 
 =head1 NAME
 
@@ -461,6 +461,75 @@ sub map_pc_to_generic_json {
 	return(\@json_scalar) ;
 }
 ## END of SUB
+
+
+=head2 METHOD mapGroupsWithRecords
+
+	## Description : map records with pcgroups mz to adjust massbank id annotations
+	## Input : $pcgroups, $records
+	## Output : $pcgroups
+	## Usage : my ( $var4 ) = mapGroupsWithRecords ( $$pcgroups, $records ) ;
+	
+=cut
+## START of SUB
+sub mapGroupsWithRecords {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $pcgroups, $records ) = @_;
+
+    my %temp = () ;
+    my (%intervales, @annotation_ids) = ( (), ()  ) ;
+    
+    if ( ( defined $pcgroups ) and ( defined $records )  ) {
+    	
+		%temp = %{$pcgroups} ;
+		my @real_ids ;
+		foreach my $pc (keys %temp) {
+
+			if ( $temp{$pc}{'intervales'} ) { %intervales = %{$temp{$pc}{'intervales'}} ; }
+			else { warn "Cant't find any intervale values\n" ; }
+			if ( $temp{$pc}{'massbank_ids'} ) { @annotation_ids = @{$temp{$pc}{'massbank_ids'}} ; }
+			else { warn "Cant't find any massbank id values\n" ; }
+			
+#			print Dumper %intervales;
+#			print Dumper @annotation_ids ;
+			
+			## map with intervales 
+			foreach my $mz (keys %intervales) {
+				my ( $min, $max ) = ( $intervales{$mz}{'min'}, $intervales{$mz}{'max'} ) ;
+				
+				foreach my $id (@annotation_ids) {
+#					print "Analyse mzs of id: $id...\n" ;
+					if ($records->{$id}) {
+						foreach my $peak_mz (@{$records->{$id}}) {
+							my $record_mz = $peak_mz->{'mz'} ;
+							if ( ($record_mz > $min ) and ($record_mz < $max) ){
+								push(@real_ids, $id) ;
+#								print "$mz - - $id\n" ;
+							}
+							else {
+								next ;
+							}
+						} ## foreach
+					}
+					else {
+						warn "The id $id seems to be not present in getting records\n" ;
+						next ;
+					}
+				}
+				my @temp = @real_ids ;
+				$temp{$pc}{'enrich_annotation'}{$mz} = \@temp ;
+				@real_ids = () ;
+			}
+		}
+    }
+    else {
+    	warn"Can't find record or pcgroup data\n" ;
+    }
+    
+    return (\%temp) ;
+}
+### END of SUB
 
 
 1 ;
