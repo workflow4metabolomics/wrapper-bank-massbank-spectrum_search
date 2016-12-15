@@ -171,6 +171,53 @@ sub filter_pcgroup_res {
 }
 ### END of SUB
 
+=head2 METHOD add_min_max_for_pcgroup_res
+
+	## Description : This method add min / max value for each mzmed contained in pcgroup
+	## Input : $pcgroups
+	## Output : $pcgroups
+	## Usage : my ( $pcgroups ) = add_min_max_for_pcgroup_res ( $pcgroups ) ;
+	
+=cut
+## START of SUB
+sub add_min_max_for_pcgroup_res {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $pcgroups, $delta ) = @_ ;
+
+    my %temp = () ;
+    
+    if (!defined $delta) {
+    	$delta = 0.01 ; ## default value
+    }
+
+	if ( defined $pcgroups) {
+		%temp = %{$pcgroups} ;
+
+		foreach my $pc (keys %temp) {
+			my %mz_intervales = () ;
+			if ( $temp{$pc}{'mzmed'} ) {
+				my @temp = @{$temp{$pc}{'mzmed'}} ;
+				foreach my $mz (@temp) {
+					my ($min, $max) = lib::mapper::new->min_and_max_from_double_with_delta($mz, 'Da', $delta);
+					$mz_intervales{$mz} = {'min' => $min, 'max' => $max } ;
+				}
+			}
+			else {
+				warn "No mzmed found for this pcgroup\n" ;
+			}
+			$temp{$pc}{'intervales'} = \%mz_intervales ;
+			
+		}
+	} ## End IF
+	else {
+		warn "No pcgroup and threshold defined\n" ;
+	}
+    return (\%temp) ;
+}
+### END of SUB
+
+
 
 =head2 METHOD compute_ids_from_pcgroups_res
 
