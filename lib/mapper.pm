@@ -295,18 +295,18 @@ sub get_massbank_records_by_chunk {
     my ( @records, @sent_ids ) = ( (), () ) ;
     
     my $current = 0 ;
-    my $pos = 0 ; 
+    my $pos = 1 ; 
     my @temp_ids = () ;
     
     my $num_ids = scalar(@{$ids}) ;
+#    print "The number of given massbank ids is: $num_ids\n" ;
     
     foreach my $id (@{$ids}) {
+    	$current++ ;
+#    	print "$id - - $current/$num_ids) - - $pos \n" ;
     	
-    	if ($pos < $chunk_size) {
-    		push (@temp_ids, $id) ;
-    		$pos ++ ;
-    	}
-    	elsif ( ($pos == $chunk_size) or ($current == $num_ids-1)  ) {
+    	if (  ($current == $num_ids) or ($pos == $chunk_size)  ) {
+#    		print "Querying Massbank with...\n" ;
     		push (@temp_ids, $id) ;
     		## send query
     		my $omassbank = lib::massbank_api->new() ;
@@ -317,11 +317,19 @@ sub get_massbank_records_by_chunk {
     		@temp_ids = () ; 
     		$pos = 0 ;
     	}
+    	elsif ($pos < $chunk_size) {
+#    		print "store...\n";
+    		push (@temp_ids, $id) ;
+    		$pos ++ ;
+    	}
     	else {
     		warn "Something goes wrong : out of range\n"
     	}
-    	$current++ ;
+    	
+    	
     }
+    my $num_records = scalar(@records) ;
+#    print "The number of received massbank records is: $num_records\n" ;
     return (\@records) ;
 }
 ### END of SUB
