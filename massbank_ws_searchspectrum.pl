@@ -41,7 +41,7 @@ use lib::massbank_parser qw(:ALL) ;
 my ($help, $mzs_file, $col_mz, $col_int, $col_pcgroup, $line_header ) = ( undef, undef, undef, undef, undef,undef, undef ) ;
 my $mass = undef ;
 my ($server, $ion_mode, $score_threshold, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef, undef ) ;
-my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
+my ($output_json, $output_tabular, $output_xlsx, $output_html ) = ( undef, undef, undef, undef ) ;
 
 ## Local values ONLY FOR TEST :
 #my $server = 'JP' ;
@@ -64,9 +64,10 @@ my ($out_json, $out_csv, $out_xls ) = ( undef, undef, undef ) ;
 				"tolerance:f"		=> \$tol, 
 				"cutoff:i"			=> \$cutoff, # advanced : intensity cutoff
 				"server:s"			=> \$server, ## by default JP and # advanced
-				"json:s"			=> \$out_json,
-				"xls:s"				=> \$out_xls,
-				"csv:s"				=> \$out_csv,
+				"output_json:s"		=> \$output_json,
+				"output_xlsx:s"		=> \$output_xlsx,
+				"output_tabular:s"	=> \$output_tabular,
+				"output_html:s"		=> \$output_html,
             ) ;
          
 ## if you put the option -help or -h function help is started
@@ -282,25 +283,25 @@ print Dumper $well_annoted_pcGroups ;
 my ( $massbank_matrix ) = ( undef ) ;
 
 ## CSV OUTPUT
-if (  (defined $out_csv) and  (defined $cleaned_pcgroups) and  (defined $pcs) ) {
+if (  (defined $output_tabular) and  (defined $cleaned_pcgroups) and  (defined $pcs) ) {
 	my $omapper = lib::mapper->new() ;
 	if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $cleaned_pcgroups ) ; }
 	elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $cleaned_pcgroups ) ; }
 	$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
 	my $owritter = lib::writter->new() ;
-	$owritter->write_csv_skel(\$out_csv, $massbank_matrix) ;
+	$owritter->write_csv_skel(\$output_tabular, $massbank_matrix) ;
 }
 ## XLS OUTPUT 
-if (  (defined $out_xls) and  (defined $cleaned_pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+if (  (defined $output_xlsx) and  (defined $well_annoted_pcGroups) and  (defined $mzs) and  (defined $pcs)  ) {
 	my $owritter = lib::writter->new() ;
-	$owritter->write_xls_skel(\$out_xls, $mzs, $pcs, $cleaned_pcgroups) ;
+	$owritter->write_xls_skel(\$output_xlsx, $mzs, $pcs, $well_annoted_pcGroups) ;
 }
 ## JSON OUTPUT 
-if (  (defined $out_json) and  (defined $cleaned_pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+if (  (defined $output_json) and  (defined $cleaned_pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
 	my $omapper = lib::mapper->new() ;
 	my $json_scalar = $omapper->map_pc_to_generic_json($pcs, $cleaned_pcgroups) ;
 	my $owritter = lib::writter->new() ;
-	$owritter->write_json_skel(\$out_json, $json_scalar) ;
+	$owritter->write_json_skel(\$output_json, $json_scalar) ;
 }
 
 
@@ -340,9 +341,9 @@ USAGE :
 			-tolerance [Tolerance of values of m/z of peaks: 0.3 unit or 50 ppm]
 			-cutoff [Ignore peaks whose intensity is not larger than the value of cutoff. Default: 50)]
 			-server [name of the massbank server : EU or JP only]
-			-json [ouput file for JSON]
-			-xls [ouput file for XLS]
-			-csv [ouput file for TABULAR]
+			-output_json [ouput file for JSON]
+			-output_xls [ouput file for XLS]
+			-output_tabular [ouput file for TABULAR]
 		
 		";
 	exit(1);
