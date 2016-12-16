@@ -110,7 +110,7 @@ sub initRecordObjectTest {
     
     my $omassbank = lib::massbank_api->new() ;
     my $record = $omassbank->initRecordObject($string) ;
-    print Dumper $record ;
+#    print Dumper $record ;
     return($record) ;
 }
 ## End SUB
