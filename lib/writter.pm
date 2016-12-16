@@ -92,49 +92,99 @@ sub write_xls_skel {
     my $i = 0 ;
     
     open(XLS, '>:utf8', "$$out_xls") or die "Cant' create the file $$out_xls\n" ;
-    print XLS "SUBMITTED_MASS\tPCGROUP\tMASSBANK_ID\tSPECTRA_TITLE\tFORMULA\tCPD_MW\tSCORE\tCOMMENTS\n" ;
-    $results = ['SUBMITTED_MASS','PCGROUP','MASSBANK_ID','tSPECTRA_TITLE','FORMULA','CPD_MW','SCORE','COMMENTS'] ;
+    print XLS "ID\tPCGROUP\tQuery(Da)\tScore\tMetabolite_name\tCpd_Mw(Da)\tFormula\tAdduct\tMASSBANK_ID\tInstrument\tMS_level\n" ;
+
+    $results = ['ID','PCGROUP','Query(Da)','Score','Metabolite_name','Cpd_Mw(Da)','Formula','Adduct','MASSBANK_ID','Instrument','MS_level'] ;
     
     foreach my $pc (@{$pcs}) {
     	
     	if ($pcgroups->{$pc}) {
+#    		print "------>$pc - $pcgroups->{$pc}{annotation}{num_res}\n" ;
     		
-    		if ($pcgroups->{$pc}{annotation}{num_res}) {
+    		if ( $pcgroups->{$pc}{'annotation'} ) {
     			my $result = undef ;
-    			if ($pcgroups->{$pc}{annotation}{num_res} == 0) {
-    				$result = $mzs->[$i]."\t".$pc."\t".'NA'."\t".'NA'."\t".'NA'."\t".'NA'."\t"."0"."\t"."No_result_found_on_MassBank" ;
-    				print XLS "$mzs->[$i]\t$pc\tNA\tNA\tNA\tNA\t0\tNo_result_found_on_MassBank\n" ;
-    			}
-    			elsif ($pcgroups->{$pc}{annotation}{num_res} > 0) {
-    				
-    				my @entries = @{$pcgroups->{$pc}{annotation}{res} } ;
-    				
+    			my $well_id = "mz_0".sprintf("%04s", $i+1 ) ;
+    			
+    			if ($pcgroups->{$pc}{'annotation'}{'num_res'} > 0) {
+
+    				my @entries = @{$pcgroups->{$pc}{'annotation'}{'res'} } ;
+    				my $status = undef ;
     				foreach my $entry (@entries) {
-    					## print submitted mass
-	    				if ($mzs->[$i]) { 	print XLS "$mzs->[$i]\t" ; $result .= $mzs->[$i]."\t" ; 	}
-	    				else {				print XLS "$mzs->[$i]\t" ; }
-	    				## print submitted pcgroup
-	    				if ($pc ) { 	 print XLS "$pc\t" ; $result .= $pc."\t" ; 	} ## pb de clean de la derniere ligne !!!!!!
-	    				else {		print XLS "$pc\t" ; }
-	    				## print massbank id
-	    				if ($entry->{'id'}) { 	print XLS "$entry->{'id'}\t" ; $result .= $entry->{'id'}."\t" ; 	}
-	    				else {				print XLS "NA\t" ; }
-	    				## print massbank title
-	    				if ($entry->{'title'}) { 	print XLS "$entry->{'title'}\t" ; $result .= $entry->{'title'}."\t" ; 	}
-	    				else {				print XLS "NA\t" ; }
-	    				## print massbank formula
-	    				if ($entry->{'formula'}) { 	print XLS "$entry->{'formula'}\t" ; $result .= $entry->{'formula'}."\t" ; 	}
-	    				else {				print XLS "NA\t" ; }
-	    				## print massbank exactMass
-	    				if ($entry->{'exactMass'}) { 	print XLS "$entry->{'exactMass'}\t" ; $result .= $entry->{'exactMass'}."\t" ; 	}
-	    				else {				print XLS "NA\t" ; }
-	    				## print massbank title
-	    				if ($entry->{'score'}) { 	print XLS "$entry->{'score'}\t" ; $result .= $entry->{'score'}."\t" ; 	}
-	    				else {				print XLS "NA\n" ; }
-	    				## print massbank comment
-	    				print XLS "NA\n" ; $result .= "NA\n" ;
+    					my $match = undef ;
+    					## manage if the queried mz is really in the mzs spectrum list...
+    					
+    					if ( $pcgroups->{$pc}{'enrich_annotation'}{$mzs->[$i]} ) {
+    						
+    						my @matching_ids = @{$pcgroups->{$pc}{'enrich_annotation'}{$mzs->[$i]}} ;
+    						
+    						## 
+    						if ( scalar @matching_ids == 0 ) {
+    							$result .= $well_id."\t".$pc."\t".$mzs->[$i]."\t".'0'."\t".'UNKNOWN'."\t".'NA'."\t".'NA'."\t".'NA'."\t".'NA'."\t".'NA'."\t".'NA'."\n" ;
+	    						print XLS "$well_id\t$pc\t$mzs->[$i]\t0\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n" ;
+	    						last ;
+    						}
+    						else {
+    							# search the massbank matched id
+    							foreach (@matching_ids) {
+	    							if ($_ eq $entry->{'id'} ) {
+	    								$match = 'TRUE' ;
+	    							}
+	    						}
+	    						
+	    						if ( ( defined $match ) and ($match eq 'TRUE') ) {
+	    							## sort by ['ID','PCGROUP','Query(Da)','Score','Metabolite_name','Cpd_Mw(Da)','Formula','Adduct','MASSBANK_ID','Instrument','MS_level']
+	    							
+			    					## print mz_id
+				    				if ($mzs->[$i]) { 	print XLS "$well_id\t" ; $result .= $well_id."\t" ; 	}
+				    				else {				print XLS "NA\t" ; }
+				    				## print submitted pcgroup
+				    				if ($pc ) { 	 print XLS "$pc\t" ; $result .= $pc."\t" ; 	} ## pb de clean de la derniere ligne !!!!!!
+				    				else {		print XLS "NA\t" ; }
+				    				## print Query(Da)
+				    				if ($mzs->[$i]) { 	print XLS "$mzs->[$i]\t" ; $result .= $mzs->[$i]."\t" ; 	}
+				    				else {				print XLS "NA\t" ; }
+				    				
+				    				## print Score
+				    				if ($entry->{'score'}) { 	print XLS "$entry->{'score'}\t" ; $result .= $entry->{'score'}."\t" ; 	}
+				    				else {				print XLS "NA\n" ; }
+				    				## print Met_name
+				    				if ($entry->{'met_name'}) { 	print XLS "$entry->{'met_name'}\t" ; $result .= $entry->{'met_name'}."\t" ; 	}
+				    				else {				print XLS "NA\t" ; }
+				    				## print Cpd_mw
+				    				if ($entry->{'exactMass'}) { 	print XLS "$entry->{'exactMass'}\t" ; $result .= $entry->{'exactMass'}."\t" ; 	}
+				    				else {				print XLS "NA\t" ; }
+				    				## print Formula
+				    				if ($entry->{'formula'}) { 	print XLS "$entry->{'formula'}\t" ; $result .= $entry->{'formula'}."\t" ; 	}
+				    				else {				print XLS "NA\t" ; }
+				    				## print Adduct
+				    				if ($entry->{'adduct'}) { 	print XLS "$entry->{'adduct'}\t" ; $result .= $entry->{'adduct'}."\t" ; 	}
+				    				else {				print XLS "NA\t" ; }
+				    				## print Massbank ID
+				    				if ($entry->{'id'}) { 	print XLS "$entry->{'id'}\t" ; $result .= $entry->{'id'}."\t" ; 	}
+				    				else {				print XLS "NA\t" ; }
+				    				## print Instrument
+				    				if ($entry->{'instrument'}) { 	print XLS "$entry->{'instrument'}\t" ; $result .= $entry->{'instrument'}."\t" ; 	}
+				    				else {				print XLS "NA\t" ; }
+				    				## print MS_Level
+									if ($entry->{'ms_level'}) { 	print XLS "$entry->{'ms_level'}\t" ; $result .= $entry->{'ms_level'}."\n" ; 	}
+				    				else {				print XLS "NA\n" ; }
+	
+	    						}
+	    						## else match is not TRUE
+	    						else {
+	    							next ;
+	    						}
+    						}
+    					}
     				} ## End foreach entries
     			}
+    			else {
+    				$result .= $well_id."\t".$pc."\t".$mzs->[$i]."\t".'0'."\t".'UNKNOWN'."\t".'NA'."\t".'NA'."\t".'NA'."\t".'NA'."\t".'NA'."\t".'NA'."\n" ;
+    				print XLS "$well_id\t$pc\t$mzs->[$i]\t0\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n" ;
+    			}
+    		}
+    		else{
+    			warn "Not possible to get number of found ids on MassBank\n" ;
     		}
     	}
     	else {
