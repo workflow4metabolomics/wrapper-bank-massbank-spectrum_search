@@ -13,8 +13,8 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 our $VERSION = "1.0" ;
 our @ISA = qw(Exporter) ;
-our @EXPORT = qw( getPeaksFromString ) ;
-our %EXPORT_TAGS = ( ALL => [qw( getPeaksFromString )] ) ;
+our @EXPORT = qw( getChemNamesFromString getPeaksFromString ) ;
+our %EXPORT_TAGS = ( ALL => [qw( getChemNamesFromString getPeaksFromString )] ) ;
 
 =head1 NAME
 
@@ -553,6 +553,234 @@ sub getIdFromString {
     return ($id) ;
 }
 ### END of SUB
+
+
+
+=head2 METHOD getInstrumentTypeFromString
+
+	## Description : get the instrument type of massbank record
+	## Input : $record
+	## Output : $instrumentType
+	## Usage : my ( $instrumentType ) = getInstrumentTypeFromString ( $record ) ;
+	
+=cut
+## START of SUB
+sub getInstrumentTypeFromString {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $record ) = @_;
+    my ( $instrumentType ) = ( undef ) ;
+    
+    if ( defined $record ) {
+    	my @tmp = split(/\n/, $record) ;
+    	foreach my $field (@tmp) {
+    		if ($field =~/INSTRUMENT_TYPE:\s+(.+)/) { 
+				$instrumentType = $1;
+    		}
+    	}
+    	# for db field
+    }
+    else {
+    	croak "Can't work with a undef / none existing massbank handler\n" ;
+    }
+    
+    return ($instrumentType) ;
+}
+### END of SUB
+
+=head2 METHOD getFormulaFromString
+
+	## Description : get the elementar formula of massbank record
+	## Input : $record
+	## Output : $formula
+	## Usage : my ( $formula ) = getFormulaFromString ( $record ) ;
+	
+=cut
+## START of SUB
+sub getFormulaFromString {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $record ) = @_;
+    my ( $formula ) = ( undef ) ;
+    
+    if ( defined $record ) {
+    	my @tmp = split(/\n/, $record) ;
+    	foreach my $field (@tmp) {
+    		if ($field =~/CH\$FORMULA:\s+(.+)/) { 
+				$formula = $1;
+    		}
+    	}
+    	# for db field
+    }
+    else {
+    	croak "Can't work with a undef / none existing massbank handler\n" ;
+    }
+    
+    return ($formula) ;
+}
+### END of SUB
+
+=head2 METHOD getExactMzFromString
+
+	## Description : get the exact mass of massbank record
+	## Input : $record
+	## Output : $exactMass
+	## Usage : my ( $exactMass ) = getExactMzFromString ( $record ) ;
+	
+=cut
+## START of SUB
+sub getExactMzFromString {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $record ) = @_;
+    my ( $exactMass ) = ( undef ) ;
+    
+    if ( defined $record ) {
+    	my @tmp = split(/\n/, $record) ;
+    	foreach my $field (@tmp) {
+    		if ($field =~/CH\$EXACT_MASS:\s+(.+)/) { 
+				$exactMass = $1;
+    		}
+    	}
+    	# for db field
+    }
+    else {
+    	croak "Can't work with a undef / none existing massbank handler\n" ;
+    }
+    
+    return ($exactMass) ;
+}
+### END of SUB
+
+
+=head2 METHOD getPrecursorTypeFromString
+
+	## Description : get the precursor type of massbank record
+	## Input : $record
+	## Output : $precursorType
+	## Usage : my ( $precursorType ) = getPrecursorTypeFromString ( $record ) ;
+	
+=cut
+## START of SUB
+sub getPrecursorTypeFromString {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $record ) = @_;
+    my $id = undef ;
+    my $precursorType = undef ;
+    my $precursorType_first  = undef ;
+    my $ionType_first  = undef ;
+    my $precursorType_optionnal = undef ;
+    
+    if ( defined $record ) {
+    	my @tmp = split(/\n/, $record) ;
+    	foreach my $field (@tmp) {
+    		if ($field =~/ACCESSION:\s+(.+)/) { 
+				$id = $1;
+    		}
+    		if ($field =~/RECORD_TITLE:\s+(.+)/) { 
+				my @title = split(/;/, $1) ;
+				$precursorType_optionnal = $title[-1] ;
+				$precursorType_optionnal =~ s/\s//g ;
+    		}
+    		if ($field =~/PRECURSOR_TYPE(.+)/) {
+				$precursorType_first = $1;
+				last;
+    		}
+    		if ($field =~/ION_TYPE(.+)/) {
+				$ionType_first = $1;
+				last;
+    		}
+    	}
+    	# for db field
+    }
+    else {
+    	croak "Can't work with a undef / none existing massbank handler\n" ;
+    }
+    
+    ## manage undef precursor/ion type field 
+#    print "ID:$id-//-$precursorType_first-//-$ionType_first-//-$precursorType_optionnal\n" ;
+    if (defined $precursorType_first) {
+    	$precursorType = $precursorType_first ;
+    }
+    elsif ( (!defined $precursorType_first) and (defined $ionType_first) ) {
+    	$precursorType = $ionType_first ;
+    }
+    elsif ( (!defined $precursorType_first) and (!defined $ionType_first) and (defined $precursorType_optionnal) ) {
+    	$precursorType = $precursorType_optionnal ;
+    }
+    else {
+    	$precursorType = 'NA' ;
+    }
+    
+    return ($precursorType) ;
+}
+### END of SUB
+
+=head2 METHOD getMsTypeFromString
+
+	## Description : get the MS type of massbank record
+	## Input : $record
+	## Output : $msType
+	## Usage : my ( $msType ) = getMsTypeFromString ( $record ) ;
+	
+=cut
+## START of SUB
+sub getMsTypeFromString {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $record ) = @_;
+    my ( $msType ) = ( undef ) ;
+    
+    if ( defined $record ) {
+    	my @tmp = split(/\n/, $record) ;
+    	foreach my $field (@tmp) {
+    		if ($field =~/AC\$MASS_SPECTROMETRY:\s+MS_TYPE\s+(.+)/) { 
+				$msType = $1;
+    		}
+    	}
+    	# for db field
+    }
+    else {
+    	croak "Can't work with a undef / none existing massbank handler\n" ;
+    }
+    
+    return ($msType) ;
+}
+### END of SUB
+
+=head2 METHOD getChemNamesFromString
+
+	## Description : get lits of names of a massbank record
+	## Input : $record
+	## Output : $names
+	## Usage : my ( $names ) = getChemNamesFromString( $record ) ;
+	
+=cut
+## START of SUB
+sub getChemNamesFromString {
+	## Retrieve Values
+    my $self = shift ;
+    my ( $record ) = @_ ;
+    
+    my @names = () ;
+    if ( defined $record ) {
+    	my @tmp = split(/\n/, $record) ;
+    	foreach my $field (@tmp) {   		
+    		if ($field =~/CH\$NAME: (.*)/) { 
+    			push(@names, $1 ) ;  }
+	    	else { next ; }
+    	}
+    }
+    else {
+    	croak "Can't work with a undef / none existing massbank record (string)\n" ;
+    }
+    return(\@names) ;
+}
+## END of SUB
+
+
+
 
 
 =head2 METHOD getMassBankHandler
