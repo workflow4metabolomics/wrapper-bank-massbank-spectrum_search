@@ -505,6 +505,11 @@ sub getPeaksFromString {
     				my %tmp = ( 'mz' => $1, 'intensity' => $2, 'relative_intensity' => $3 ) ;
     				push (@features, \%tmp) ;
     			}
+    			## for int = x.xxxex and m/z = xxx.xxx (int with exposant)
+    			elsif ($field =~/\s+(\d+\.\d+)\s+(\d+\.\d+)e(\d)\s+(\d+)/) {
+    				my %tmp = ( 'mz' => $1, 'intensity' => ($2*(10*$3)), 'relative_intensity' => $4 ) ;
+    				push (@features, \%tmp) ;
+    			}
     		}
 	    	else { next ; }
     	}
