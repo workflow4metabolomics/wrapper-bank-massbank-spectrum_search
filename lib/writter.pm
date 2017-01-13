@@ -66,7 +66,7 @@ sub write_csv_skel {
     my $self = shift ;
     my ( $csv_file, $rows ) = @_ ;
     
-    my $ocsv = lib::csv::new() ;
+    my $ocsv = lib::csv::new( {is_binary => 1 , quote_binary => 0, quote_char => undef }) ;
 	my $csv = $ocsv->get_csv_object("\t") ;
 	$ocsv->write_csv_from_arrays($csv, $$csv_file, $rows) ;
     
@@ -86,7 +86,7 @@ sub write_csv_skel {
 sub write_xls_skel {
 	## Retrieve Values
     my $self = shift ;
-    my ( $out_xls, $mzs, $pcs, $pcgroups ) = @_ ;
+    my ( $out_xls, $mzs, $pcs, $pcgroups, $records ) = @_ ;
     
     my $results = undef ;
     my $i = 0 ;
@@ -128,6 +128,7 @@ sub write_xls_skel {
     							foreach (@matching_ids) {
 	    							if ($_ eq $entry->{'id'} ) {
 	    								$match = 'TRUE' ;
+	    								last ;
 	    							}
 	    						}
 	    						
@@ -148,7 +149,7 @@ sub write_xls_skel {
 				    				if ($entry->{'score'}) { 	print XLS "$entry->{'score'}\t" ; $result .= $entry->{'score'}."\t" ; 	}
 				    				else {				print XLS "NA\n" ; }
 				    				## print Met_name
-				    				if ($entry->{'met_name'}) { 	print XLS "$entry->{'met_name'}\t" ; $result .= $entry->{'met_name'}."\t" ; 	}
+				    				if ($entry->{'id'}) { 	print XLS "$records->{$entry->{'id'}}{names}[0]\t" ; $result .= $records->{$entry->{'id'}}{names}[0]."\t" ; 	}
 				    				else {				print XLS "NA\t" ; }
 				    				## print Cpd_mw
 				    				if ($entry->{'exactMass'}) { 	print XLS "$entry->{'exactMass'}\t" ; $result .= $entry->{'exactMass'}."\t" ; 	}
@@ -156,17 +157,17 @@ sub write_xls_skel {
 				    				## print Formula
 				    				if ($entry->{'formula'}) { 	print XLS "$entry->{'formula'}\t" ; $result .= $entry->{'formula'}."\t" ; 	}
 				    				else {				print XLS "NA\t" ; }
-				    				## print Adduct
-				    				if ($entry->{'adduct'}) { 	print XLS "$entry->{'adduct'}\t" ; $result .= $entry->{'adduct'}."\t" ; 	}
+				    				## print Adduct (precursor type)
+				    				if ($entry->{'id'}) { 	print XLS "$records->{$entry->{'id'}}{precursor_type}\t" ; $result .= $records->{$entry->{'id'}}{precursor_type}."\t" ; 	}
 				    				else {				print XLS "NA\t" ; }
 				    				## print Massbank ID
 				    				if ($entry->{'id'}) { 	print XLS "$entry->{'id'}\t" ; $result .= $entry->{'id'}."\t" ; 	}
 				    				else {				print XLS "NA\t" ; }
 				    				## print Instrument
-				    				if ($entry->{'instrument'}) { 	print XLS "$entry->{'instrument'}\t" ; $result .= $entry->{'instrument'}."\t" ; 	}
+				    				if ($entry->{'id'}) { 	print XLS "$records->{$entry->{'id'}}{instrument_type}\t" ; $result .= $records->{$entry->{'id'}}{instrument_type}."\t" ; 	}
 				    				else {				print XLS "NA\t" ; }
 				    				## print MS_Level
-									if ($entry->{'ms_level'}) { 	print XLS "$entry->{'ms_level'}\t" ; $result .= $entry->{'ms_level'}."\n" ; 	}
+									if ($entry->{'id'}) { 	print XLS "$records->{$entry->{'id'}}{ms_type}\n" ; $result .= $records->{$entry->{'id'}}{ms_type}."\n" ; 	}
 				    				else {				print XLS "NA\n" ; }
 	
 	    						}
