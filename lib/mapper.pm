@@ -337,46 +337,94 @@ sub get_massbank_records_by_chunk {
 =head2 METHOD set_massbank_matrix_object
 
 	## Description : build the massbank_row under its ref form
-	## Input : $header, $init_mzs, $entries
+	## Input : $header, $init_pcs, $init_mzs, $pcgroups, $records
 	## Output : $massbank_matrix
-	## Usage : my ( $massbank_matrix ) = set_lm_matrix_object( $header, $init_mzs, $entries ) ;
+	## Usage : my ( $massbank_matrix ) = set_lm_matrix_object( $header, $init_pcs, $init_mzs, $pcgroups, $records ) ;
 	
 =cut
 ## START of SUB
 sub set_massbank_matrix_object {
 	## Retrieve Values
     my $self = shift ;
-    my ( $header, $init_pcs, $pcgroups ) = @_ ;
-    
+    my ( $header, $init_pcs, $init_mzs, $pcgroups, $records ) = @_ ;
     my @massbank_matrix = () ;
+	
+	my $current_pos = 0 ;
     
+    ## format massbank(score::name::mz::formula::adduct::id)
     if ( defined $header ) {
+    	$header .= '(score::name::mz::formula::adduct::id)' ;
     	my @headers = () ;
     	push @headers, $header ;
     	push @massbank_matrix, \@headers ;
     }
-    ## map foreach listed pc group the massbank ids 
-    foreach my $pc ( @{$init_pcs} ) {
+			
+	## foreach mz of the input file
+	foreach my $mz (@{$init_mzs}) {
+		
+		my $nb_ids = 0 ;
 		my @ids = () ;
-		if ($pcgroups->{$pc}) {
-			my @massbank_ids = @{$pcgroups->{$pc}{'massbank_ids'} } ;
-			my $nb_ids = $pcgroups->{$pc}{'annotation'}{'num_res'} ;
-			
+		
+		my $pc = $init_pcs->[$current_pos] ; ## get the rigth pcgroup with maz postion in list
+#		print "---> Current PCGROUP is $pc\n" ;
+		if ( $pcgroups->{$pc}{'enrich_annotation'}{$mz} ) {
+			## get record_ids 
+			my @massbank_ids = @{ $pcgroups->{$pc}{'enrich_annotation'}{$mz} } ; ## get validated ids relative to one mz
+			$nb_ids = scalar (@massbank_ids) ;
+#			print "- - - NB RECORDS FOR MZ $mz = $nb_ids - - STATUS => \t" ;
 			my $massbank_ids_string = undef ;
-			
 			## manage empty array
 			if (!defined $nb_ids) { carp "The number of massbank ids is not defined\n" ; }
-			elsif ( $nb_ids > 0 ) { $massbank_ids_string = join('|', @massbank_ids ) ; 	}
-			elsif ( $nb_ids == 0 ) { $massbank_ids_string = 'No_result_found_on_MassBank' ; }
-			
+			elsif ( $nb_ids > 0 ) {
+				## get data from records and init_annotation
+				my $index_entries = 0 ;
+				foreach my $record_id (@massbank_ids) {
+					my $massbank_name = $records->{$record_id}{names}[0] ;
+		    		my $massbank_id = $record_id  ;
+		    		my $massbank_formula = $records->{$record_id}{formula} ;
+		    		my $massbank_cpd_mz = $records->{$record_id}{exact_mz}  ;
+		    		my $massbank_adduct = $records->{$record_id}{precursor_type}  ;
+		    		my $massbank_score = 0 ;
+		    		
+		    		## getting the score 
+		    		my @filtered_records= @{ $pcgroups->{$pc}{'annotation'}{res} } ;
+		    		foreach my $record (@filtered_records) {
+		    			if ($record->{id} eq $massbank_id ) {
+		    				$massbank_score = $record->{score} ;
+		    				last ;
+		    			}
+		    			else {
+		    				next ;
+		    			}
+		    		}
+			    	
+			    	## METLIN data display model
+			   		## entry1= ENTRY_DELTA::ENTRY_ENTRY_NAME::ENTRY_CPD_MZ::ENTRY_FORMULA::ENTRY_ADDUCT::ENTRY_ENTRY_ID | entry2=VAR1::VAR2::VAR3::VAR4|...
+			   		my $massbank_id_string = $massbank_score.'::['."$massbank_name".']::'.$massbank_cpd_mz.'::'.$massbank_formula.'::['.$massbank_adduct.']::'.$massbank_id ;
+			   		
+			   		# manage final pipe
+			   		if ($index_entries < $nb_ids-1 ) { 	$massbank_ids_string .= $massbank_id_string.' | ' ; }
+			   		else { 						   			$massbank_ids_string .= $massbank_id_string ; 	}
+			   		$index_entries++;
+				}
+			}
+			elsif ( $nb_ids == 0 ) { $massbank_ids_string = 'NONE' ; }
+			else {
+				$massbank_ids_string = 'NONE' ;
+			}
+#			print "$massbank_ids_string\n" ;
 			push (@ids, $massbank_ids_string) ;
-			push (@massbank_matrix, \@ids) ;
+		} ## End if
+		else {
+			next;
 		}
-		else{
-			carp "This pc group number doesn't exist for mapping\n" ;
-		}
-    	
-    }
+		$current_pos++ ;
+		
+		push (@massbank_matrix, \@ids) ;
+	} ## End foreach mz
+#	print "* * * * Start of the MATRIX: * * * *\n" ;
+#    print Dumper @massbank_matrix ;
+#    print "* * * * END of the MATRIX * * * *\n" ;
     return(\@massbank_matrix) ;
 }
 ## END of SUB
@@ -429,15 +477,43 @@ sub map_pc_to_generic_json {
     my $self = shift;
     my ( $pcs, $pcgroups ) = @_ ;
     
+#    print Dumper $pcgroups ;
 
-    my @json_scalar = () ;
+	exit(1) ;
+    my %json_scalar = () ;
     ## JSON DESIGN
-#   [
-#		{ "searchResult": {  
-#			"results": [ { "formula":"C22H22N4O5",  "id":"JP006651", "title":"BENZAMIDE; EI-B; MS",  "score":"0.933207676010", "exactMass":"422.15902"}, ... ],
-#			"numResults":20 },
-#		"id":"comp0" }, ...
-#	]
+	
+	
+	my %JSON = (
+		QUERY => {},
+		PARAM => {},
+		TYPE => {}	
+	) ;
+	
+	my %oEntry = (
+		mzmed => undef,
+		into  => undef,
+		mzmin => undef,
+		mzmax => undef,
+		pcgroup => undef,
+		num_res => undef,
+		RECORDS => undef,
+	) ;
+	
+	
+	my %oRecord = (
+		id  => undef,
+		exact_mz  => undef,
+		score  => undef,
+		formula => undef,
+		ms_type => undef,
+		precursor_type => undef,
+		instrument_type => undef,
+		name => undef,
+		peaks => undef,
+	) ;
+	
+	
     
     foreach my $pc (@{$pcs}) {
 		
@@ -445,20 +521,18 @@ sub map_pc_to_generic_json {
     	my $num_res = undef ;
     	
     	if ($pcgroups->{$pc}) {
-    		$num_res = $pcgroups->{$pc}{'annotation'}{'num_res'} if ( $pcgroups->{$pc}{'annotation'}{'num_res'} >= 0 ) ;
-    		$pc_res->{'searchResult'}{'numResults'} = $num_res ;
-    		my @results = @{$pcgroups->{$pc}{'annotation'}{'res'}} if ( $pcgroups->{$pc}{'annotation'}{'res'} );
-    		$pc_res->{'searchResult'}{'results'} = \@results ;
-    		$pc_res->{'id'} = $pc if ( $pc >= 0 ); ## id is a pc group_id for the moment
+    		my %temp ;
+    		$json_scalar{'QUERY'}{$pc} = %temp ;
     		
-    		push (@json_scalar, $pc_res) ;
+    		
+    		
     	}
     	else {
     		warn "The pc group $pc doesn't exist in results !" ;
     	}    	
     }
     
-	return(\@json_scalar) ;
+	return(\%json_scalar) ;
 }
 ## END of SUB
 
@@ -483,7 +557,9 @@ sub mapGroupsWithRecords {
     if ( ( defined $pcgroups ) and ( defined $records )  ) {
     	
 		%temp = %{$pcgroups} ;
-		my @real_ids ;
+		my %unik_real_ids = () ;
+		my @real_ids = () ;
+		
 		foreach my $pc (keys %temp) {
 
 			if ( $temp{$pc}{'intervales'} ) { %intervales = %{$temp{$pc}{'intervales'}} ; }
@@ -501,27 +577,47 @@ sub mapGroupsWithRecords {
 				foreach my $id (@annotation_ids) {
 #					print "Analyse mzs of id: $id...\n" ;
 					if ($records->{$id}) {
-						foreach my $peak_mz (@{$records->{$id}}) {
-							my $record_mz = $peak_mz->{'mz'} ;
-							if ( ($record_mz > $min ) and ($record_mz < $max) ){
-								push(@real_ids, $id) ;
-#								print "$mz - - $id\n" ;
-							}
-							else {
-								next ;
-							}
-						} ## foreach
+						
+						my %currentRecord = %{$records->{$id}} ;
+						
+						if (scalar @{$currentRecord{'peaks'} } > 0 ) {
+							## 
+							foreach my $peak_mz (@{ $currentRecord{'peaks'} } ) {
+								if ($peak_mz) {
+									my $record_mz = $peak_mz->{'mz'} ;
+									if ( ($record_mz > $min ) and ($record_mz < $max) ){
+										$unik_real_ids{$id} = 1 ;
+		#								print "$mz - - $id\n" ;
+									}
+									else {
+										next ;
+									}
+								}
+								else {
+									warn "The mz field is not defined\n" ;
+								}
+							} ## foreach
+						}
+						else {
+							warn "The record ($id) has no peak\n" ;
+						}
 					}
 					else {
 						warn "The id $id seems to be not present in getting records\n" ;
 						next ;
 					}
 				}
+				## to avoid multiple ids
+				foreach my $id (keys %unik_real_ids) {
+					push(@real_ids, $id) ;
+				}
+				%unik_real_ids = () ;
 				my @temp = @real_ids ;
 				$temp{$pc}{'enrich_annotation'}{$mz} = \@temp ;
 				@real_ids = () ;
-			}
-		}
+			} ## End foreach mz
+			@annotation_ids = () ;
+		} ## End foreach pc
     }
     else {
     	warn"Can't find record or pcgroup data\n" ;
