@@ -239,6 +239,7 @@ sub write_csv_from_arrays {
     
     my $fh = undef ;
     $csv->eol ("\n"); ##  end-of-line string to add to rows
+    $csv->quote_char(undef) ;
     open $fh, ">:encoding(utf8)", "$file_name" or die "$file_name: $!";
     
 	my $status = $csv->print ($fh, $_) for @{$rows};
