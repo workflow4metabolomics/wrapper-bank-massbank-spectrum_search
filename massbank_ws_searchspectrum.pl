@@ -3,8 +3,7 @@
 ## script  : XXX.pl
 
 ## Notes :
-#	-> think about input csv file without intensities ! 
-#   -> THINK ABOUT Ids importance in input format
+#	-> manage score sorting : Cleaned_pcGroups done but not in outputs !
 
 #=============================================================================
 #                              Included modules and versions
@@ -20,6 +19,7 @@ use Thread::Queue;
 
 use Data::Dumper ;
 use Getopt::Long ;
+use POSIX ;
 use FindBin ; ## Allows you to locate the directory of original perl script
 
 ## Specific Perl Modules (PFEM)
@@ -39,7 +39,6 @@ use lib::massbank_parser qw(:ALL) ;
 
 ## Initialized values
 my ($help, $mzs_file, $col_mz, $col_int, $col_pcgroup, $line_header ) = ( undef, undef, undef, undef, undef,undef, undef ) ;
-my $mass = undef ;
 my ($server, $ion_mode, $score_threshold, $instruments, $max, $unit, $tol, $cutoff) = ( undef, undef, undef, undef, undef, undef, undef ) ;
 my ($output_json, $output_tabular, $output_xlsx, $output_html ) = ( undef, undef, undef, undef ) ;
 
@@ -90,13 +89,8 @@ foreach my $html_template ( <$binPath/*.tmpl> ) { $CONF->{'HTML_TEMPLATE'} = $ht
 ## Main variables :
 my ($pcs, $mzs, $into, $complete_rows, $pcgroups) = (undef, undef, undef, undef, undef) ;
 
-## manage a list of masses separate by space only 
-if ( ( defined $mass ) and ( $mass ne "" ) and ( $mass =~ /[\s]+/ ) ) {
-} ## END IF
-elsif ( ( defined $mass ) and ( $mass ne "" ) and ( $mass > 0 ) ) {
-} ## END IF
 ## manage csv file containing list of masses (every thing is manage in jar)
-elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
+if ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	
 	## parse csv ids and masses
 	my $is_header = undef ;
@@ -205,7 +199,7 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 		## - - - - - - -  - - - - -  - - - -  - - - - - mono thread mode if pcgroups <= 6 - - - - - - - - - - - - - - - - 
 		else {
 			## connexion
-			print $server."\n" ;
+#			print $server."\n" ;
 			my $omassbank = lib::massbank_api->new() ;
 			my $soap = $omassbank->selectMassBank($server) ;
 			print "\n------  ** ** ** Using batch mode ** ** ** --------\n\n" ;
@@ -226,11 +220,12 @@ elsif ( ( defined $mzs_file ) and ( $mzs_file ne "" ) and ( -e $mzs_file ) ) {
 	else {
 		croak "The pcgroup object is not defined\n" ;
 	}
-#	print "pcGroups results are\n"  ;
+#	print "Init pcGroups results are\n"  ;
 #	print Dumper $pcgroups ;
 	
 } ## End of elsif "defined $mzs_file"
 else {
+	warn "[WARN] Can't use Massbank WS service without an existing input tabular file\n" ;
 	&help ;
 }
 
@@ -258,53 +253,85 @@ my $all_massbank_ids = $omap->compute_ids_from_pcgroups_res($cleaned_pcgroups) ;
 
 ## get entries on the MassBank server by ID by pieces of 10
 my $omapper = lib::mapper->new() ;
-my $records = $omapper->get_massbank_records_by_chunk ($server, $all_massbank_ids, 10) ;
+my $recordList = $omapper->get_massbank_records_by_chunk ($server, $all_massbank_ids, 10) ;
 #print "\n\nRecords are\n" ;
-#print Dumper $records ;
+#print Dumper $recordList ;
 #print Dumper $all_massbank_ids ;
 
 ## foreach record - get id and peaks - create a object
 my %records = ();
-foreach (@$records) {
+foreach (@$recordList) {
 	## parse record handles
 	my $parser = lib::massbank_parser->new() ;
-	my $peaks = $parser->getPeaksFromString($_) ;
 	my $id = $parser->getIdFromString($_) ;
-	$records{$id} = $peaks ;
+	$records{$id}{'peaks'} = $parser->getPeaksFromString($_) ;
+	$records{$id}{'names'} = $parser->getChemNamesFromString($_) ;
+	$records{$id}{'instrument_type'} = $parser->getInstrumentTypeFromString($_) ;
+	$records{$id}{'precursor_type'} = $parser->getPrecursorTypeFromString($_) ;
+	$records{$id}{'ms_type'} = $parser->getMsTypeFromString($_) ;
+	$records{$id}{'formula'} = $parser->getFormulaFromString($_) ;
+	$records{$id}{'exact_mz'} = $parser->getExactMzFromString($_) ;
+	$records{$id}{'inchi'} = $parser->getInchiFromString($_) ;
 }
 #print Dumper %records ;
 
 ## Map pc_groups and records
 my $well_annoted_pcGroups = $omapper->mapGroupsWithRecords($pcgroups_with_intervales, \%records) ;
 
-print Dumper $well_annoted_pcGroups ;
+#print Dumper $well_annoted_pcGroups ;
 
 ## Output writting :
 my ( $massbank_matrix ) = ( undef ) ;
 
+## XLS OUTPUT -- new format
+if (  (defined $output_xlsx) and  (defined $well_annoted_pcGroups) and  (defined $mzs) and  (defined $pcs)  ) {
+	my $owritter = lib::writter->new() ;
+	$owritter->write_xls_skel(\$output_xlsx, $mzs, $pcs, $well_annoted_pcGroups, \%records) ;
+}
+
 ## CSV OUTPUT
-if (  (defined $output_tabular) and  (defined $cleaned_pcgroups) and  (defined $pcs) ) {
+if (  (defined $output_tabular) and  (defined $well_annoted_pcGroups) and  (defined $pcs) and  (defined $mzs) ) {
 	my $omapper = lib::mapper->new() ;
-	if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $cleaned_pcgroups ) ; }
-	elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $cleaned_pcgroups ) ; }
+	if ( ( defined $line_header ) and ( $line_header == 1 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object('massbank', $pcs, $mzs, $well_annoted_pcGroups, \%records ) ; }
+	elsif ( ( defined $line_header ) and ( $line_header == 0 ) ) { $massbank_matrix = $omapper->set_massbank_matrix_object(undef, $pcs, $mzs, $well_annoted_pcGroups, \%records ) ; }
+
 	$massbank_matrix = $omapper->add_massbank_matrix_to_input_matrix($complete_rows, $massbank_matrix) ;
 	my $owritter = lib::writter->new() ;
 	$owritter->write_csv_skel(\$output_tabular, $massbank_matrix) ;
 }
-## XLS OUTPUT 
-if (  (defined $output_xlsx) and  (defined $well_annoted_pcGroups) and  (defined $mzs) and  (defined $pcs)  ) {
-	my $owritter = lib::writter->new() ;
-	$owritter->write_xls_skel(\$output_xlsx, $mzs, $pcs, $well_annoted_pcGroups) ;
-}
-## JSON OUTPUT 
-if (  (defined $output_json) and  (defined $cleaned_pcgroups) and  (defined $mzs) and  (defined $pcs)  ) {
+
+my $json_scalar = undef ;
+## JSON OUTPUT
+if (  (defined $output_json) and  (defined $well_annoted_pcGroups) and  (defined $mzs) and  (defined $pcs)  ) {
 	my $omapper = lib::mapper->new() ;
-	my $json_scalar = $omapper->map_pc_to_generic_json($pcs, $cleaned_pcgroups) ;
+	$json_scalar = $omapper->map_pc_to_generic_json($pcs, $well_annoted_pcGroups, \%records) ;
 	my $owritter = lib::writter->new() ;
 	$owritter->write_json_skel(\$output_json, $json_scalar) ;
 }
 
-
+## HTML OUTPUT -- TODO
+if (  (defined $output_html) and  (defined $json_scalar)  ) {
+	
+#	print Dumper $json_scalar ;
+	
+	## Uses N mz and theirs entries per page (see config file).
+	# how many pages you need with your input mz list?
+	my $nb_pages_for_html_out = ceil( scalar(@{$mzs} ) / $CONF->{HTML_ENTRIES_PER_PAGE} )  ;
+	
+	## Search condition:
+	my $search_condition = "Search params : Molecular specie = $ion_mode / delta ($unit) = $tol / Score threshold = $score_threshold and max hit = $max per pcgroup" ;
+	
+	my $oHtml = lib::mapper->new() ;
+	my ($tbody_object) = $oHtml->set_html_tbody_object( $nb_pages_for_html_out, $CONF->{HTML_ENTRIES_PER_PAGE} ) ;
+	($tbody_object) = $oHtml->add_mz_to_tbody_object($tbody_object, $CONF->{HTML_ENTRIES_PER_PAGE}, $mzs, $json_scalar) ;
+	($tbody_object) = $oHtml->add_entries_to_tbody_object($tbody_object, $CONF->{HTML_ENTRIES_PER_PAGE}, $mzs, $json_scalar) ;
+	
+	my $oWritter = lib::writter->new() ;
+	$oWritter->write_html_skel(\$output_html, $tbody_object, $nb_pages_for_html_out, $search_condition, $CONF->{'HTML_TEMPLATE'}, $CONF->{'JS_GALAXY_PATH'}, $CONF->{'CSS_GALAXY_PATH'}) ;
+}
+else {
+	warn "[WARN] The html output file or the json iss not defined\n" ;
+}
 
 
 
@@ -324,10 +351,10 @@ massbank_ws_searchspectrum.pl
 
 # massbank_ws_searchspectrum.pl is a script to use SOAP massbank webservice and send specific queries about spectra searches. 
 # Input : a list of mzs, intensities, pcgroup.
-# Author : Franck Giacomoni and Marion Landi
+# Author : Franck Giacomoni
 # Email : franck.giacomoni\@clermont.inra.fr
 # Version : 1.0
-# Created : 10/06/2015
+# Created : 20/01/2017
 USAGE :		 
 		massbank_ws_searchspectrum.pl -help OR
 		
@@ -381,7 +408,7 @@ This main program is a ...
 =head1 AUTHOR
 
 Franck Giacomoni E<lt>franck.giacomoni@clermont.inra.frE<gt>
-Marion Landi E<lt>marion.landi@clermont.inra.frE<gt>
+Yann Guitton 
 
 =head1 LICENSE
 
@@ -389,7 +416,7 @@ This program is free software; you can redistribute it and/or modify it under th
 
 =head1 VERSION
 
-version 1 : xx / xx / 201x
+version 1 : 05 / 01 / 2016
 
 version 2 : ??
 
