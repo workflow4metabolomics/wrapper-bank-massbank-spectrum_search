@@ -11,8 +11,8 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( add_min_max_for_pcgroup_res get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json);
-our %EXPORT_TAGS = ( ALL => [qw( add_min_max_for_pcgroup_res get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json)] );
+our @EXPORT = qw( add_min_max_for_pcgroup_res get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json set_html_tbody_object add_mz_to_tbody_object add_entries_to_tbody_object);
+our %EXPORT_TAGS = ( ALL => [qw( add_min_max_for_pcgroup_res get_massbank_records_by_chunk compute_ids_from_pcgroups_res filter_pcgroup_res get_pcgroup_list get_pcgroups set_massbank_matrix_object add_massbank_matrix_to_input_matrix map_pc_to_generic_json set_html_tbody_object add_mz_to_tbody_object add_entries_to_tbody_object)] );
 
 =head1 NAME
 
@@ -522,7 +522,7 @@ sub map_pc_to_generic_json {
 			my $pos = 0 ;
 			## foreach mz of the pcgroup
 			foreach my $mz (@{ $pcgroups->{$pc}{mzmed} } ) {
-    		
+				
 				my %entry = %oEntry ;
 				##
 				if ( defined $mz ) 								{	$entry{mzmed} = $mz ; }
@@ -562,7 +562,7 @@ sub map_pc_to_generic_json {
 						$entry{RECORDS}{$recId} = \%record ;
 					} ## foreach recId
 				} ## end IF
-    		
+				
 				$JSON{QUERY}{$mz} = \%entry ;
 				$pos ++ ;
 			} ## End FOREACH MZ
@@ -629,10 +629,10 @@ sub mapGroupsWithRecords {
 									if ( ($record_mz > $min ) and ($record_mz < $max) ){
 										
 										if (!exists $unik_real_ids{$id}) {
-										$unik_real_ids{$id} = 1 ;
+											$unik_real_ids{$id} = 1 ;
 											push (@filteredIds, $id) ;
-		#								print "$mz - - $id\n" ;
-									}
+		#									print "$mz - - $id\n" ;
+										}
 										
 										
 									}

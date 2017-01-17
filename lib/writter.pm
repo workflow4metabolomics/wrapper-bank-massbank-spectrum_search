@@ -7,13 +7,14 @@ use Carp ;
 
 use Data::Dumper ;
 use JSON ;
+use HTML::Template ;
 
 use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 our $VERSION = "1.0";
 our @ISA = qw(Exporter);
-our @EXPORT = qw( write_csv_skel );
-our %EXPORT_TAGS = ( ALL => [qw( write_csv_skel )] );
+our @EXPORT = qw( write_csv_skel write_xls_skel write_json_skel write_html_skel );
+our %EXPORT_TAGS = ( ALL => [qw( write_csv_skel write_xls_skel write_json_skel write_html_skel )] );
 
 =head1 NAME
 
