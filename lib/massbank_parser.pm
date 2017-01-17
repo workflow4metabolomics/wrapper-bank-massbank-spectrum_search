@@ -620,6 +620,38 @@ sub getFormulaFromString {
 }
 ### END of SUB
 
+=head2 METHOD getInchiFromString
+
+	## Description : get the IUPAC InCHi of massbank record
+	## Input : $record
+	## Output : $inchi
+	## Usage : my ( $inchi ) = getInchiFromString ( $record ) ;
+	
+=cut
+## START of SUB
+sub getInchiFromString {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $record ) = @_;
+    my ( $inchi ) = ( undef ) ;
+    
+    if ( defined $record ) {
+    	my @tmp = split(/\n/, $record) ;
+    	foreach my $field (@tmp) {
+    		if ($field =~/CH\$IUPAC:\s+(.+)/) {
+				$inchi = $1;
+    		}
+    	}
+    	# for db field
+    }
+    else {
+    	croak "Can't work with a undef / none existing massbank handler\n" ;
+    }
+    
+    return ($inchi) ;
+}
+### END of SUB
+
 =head2 METHOD getExactMzFromString
 
 	## Description : get the exact mass of massbank record
