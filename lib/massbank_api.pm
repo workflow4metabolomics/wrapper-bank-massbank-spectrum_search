@@ -428,10 +428,12 @@ sub searchSpectrum() {
 								my (%val) = ('id', $id, 'title', $title, 'formula', $formula, 'exactMass', $exactMass, 'score', $score);
 								push(@res, { %val });
 							}
-							
-							
 						}
-						$ret{'res'} = \@res;
+						
+						## order res by score
+						my @sorted =  sort { $a->{score} <=> $b->{score} } @res;
+						
+						$ret{'res'} = \@sorted;
 					}
 					## for no results for the query
 					else {
