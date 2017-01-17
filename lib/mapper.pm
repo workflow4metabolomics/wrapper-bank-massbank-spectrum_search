@@ -676,6 +676,177 @@ sub mapGroupsWithRecords {
 }
 ### END of SUB
 
+=head2 METHOD set_html_tbody_object
+
+	## Description : initializes and build the tbody object (perl array) needed to html template
+	## Input : $nb_pages, $nb_items_per_page
+	## Output : $tbody_object
+	## Usage : my ( $tbody_object ) = set_html_tbody_object($nb_pages, $nb_items_per_page) ;
+	
+=cut
+## START of SUB
+sub set_html_tbody_object {
+	my $self = shift ;
+    my ( $nb_pages, $nb_items_per_page ) = @_ ;
+
+	my ( @tbody_object ) = ( ) ;
+	
+	for ( my $i = 1 ; $i <= $nb_pages ; $i++ ) {
+	    
+	    my %pages = ( 
+	    	# tbody feature
+	    	PAGE_NB => $i,
+	    	MASSES => [], ## end MASSES
+	    ) ; ## end TBODY N
+	    push (@tbody_object, \%pages) ;
+	}
+    return(\@tbody_object) ;
+}
+## END of SUB
+
+=head2 METHOD add_mz_to_tbody_object
+
+	## Description : initializes and build the mz object (perl array) needed to html template
+	## Input : $tbody_object, $nb_items_per_page, $mz_list
+	## Output : $tbody_object
+	## Usage : my ( $tbody_object ) = add_mz_to_tbody_object( $tbody_object, $nb_items_per_page, $mz_list ) ;
+	
+=cut
+## START of SUB
+sub add_mz_to_tbody_object {
+	my $self = shift ;
+    my ( $tbody_object, $nb_items_per_page, $mz_list, $json ) = @_ ;
+
+	my ( $current_page, $mz_index ) = ( 0, 0 ) ;
+	
+	foreach my $page ( @{$tbody_object} ) {
+		
+		my @colors = ('white', 'green') ;
+		my ( $current_index, , $icolor ) = ( 0, 0 ) ;
+		
+		for ( my $i = 1 ; $i <= $nb_items_per_page ; $i++ ) {
+			# 
+			if ( $current_index > $nb_items_per_page ) { ## manage exact mz per html page
+				$current_index = 0 ; 
+				last ; ##
+			}
+			else {
+				$current_index++ ;
+				if ( $icolor > 1 ) { $icolor = 0 ; }
+				
+				if ( exists $mz_list->[$mz_index]  ) {
+					
+					my %mz = (
+						# mass feature
+						MASSES_ID_QUERY => "mz_0".sprintf("%04s", $mz_index+1 ) ,
+						MASSES_MZ_QUERY => $mz_list->[$mz_index],
+						MASSES_PCGROUP_QUERY => $json->{QUERY}{ $mz_list->[$mz_index] }{pcgroup} ,
+						MZ_COLOR => $colors[$icolor],
+						MASSES_NB => $mz_index+1,
+						ENTRIES => [] ,
+					) ;
+					push ( @{ $tbody_object->[$current_page]{MASSES} }, \%mz ) ;
+					# Html attr for mass
+					$icolor++ ;
+				}
+			}
+			$mz_index++ ;
+		} ## foreach mz
+
+		$current_page++ ;
+	}
+    return($tbody_object) ;
+}
+## END of SUB
+
+=head2 METHOD add_entries_to_tbody_object
+
+	## Description : initializes and build the entries object (perl array) needed to html template
+	## Input : $tbody_object, $nb_items_per_page, $mz_list, $entries
+	## Output : $tbody_object
+	## Usage : my ( $tbody_object ) = add_entries_to_tbody_object( $tbody_object, $nb_items_per_page, $mz_list, $entries ) ;
+	
+=cut
+## START of SUB
+sub add_entries_to_tbody_object {
+	## Retrieve Values
+    my $self = shift ;
+    my ( $tbody_object, $nb_items_per_page, $mz_list, $JSON ) = @_ ;
+    
+    my $index_page = 0 ;
+    my $index_mz_continous = 0 ;
+    
+    foreach my $page (@{$tbody_object}) {
+    	
+    	my $index_mz = 0 ;
+    	
+    	foreach my $mz (@{ $tbody_object->[$index_page]{MASSES} }) {
+    		my $index_entry = 0 ;
+    		my $check_noentry = 0 ;
+    		my @toSort = () ;
+    		
+    		foreach my $record (keys %{ $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS} }) {
+    			$check_noentry ++ ;
+
+    				my %entry = (
+		    			ENTRY_COLOR => $tbody_object->[$index_page]{MASSES}[$index_mz]{MZ_COLOR},
+		    			ENTRY_ENTRY_NAME => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{name}, 	
+		   				ENTRY_ENTRY_ID => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{id}, 
+		   				ENTRY_ENTRY_ID2 => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{id},
+						ENTRY_FORMULA => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{formula},
+						ENTRY_CPD_MZ => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{exact_mz},
+						ENTRY_MS_TYPE => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{ms_type},
+						ENTRY_PRECURSOR_TYPE => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{precursor_type},
+						ENTRY_INSTRUMENT_TYPE => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{instrument_type},
+						ENTRY_SCORE => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{score},
+						ENTRY_ENTRY_INCHI => $JSON->{QUERY}{$mz->{MASSES_MZ_QUERY}}{RECORDS}{$record}{inchi},			
+		    		) ;
+	    			push ( @{ $tbody_object->[$index_page]{MASSES}[$index_mz]{ENTRIES} }, \%entry) ;
+
+    			$index_entry++ ;	
+    		} ## end foreach record
+    		if ($check_noentry == 0 ) {
+    			my %entry = (
+		    			ENTRY_COLOR => $tbody_object->[$index_page]{MASSES}[$index_mz]{MZ_COLOR},
+		    			ENTRY_ENTRY_NAME  => 'UNKNOWN',
+		   				ENTRY_ENTRY_ID => 'NONE',
+		   				ENTRY_ENTRY_ID2 => '',
+						ENTRY_FORMULA => 'n/a',
+						ENTRY_CPD_MZ => 'n/a',
+						ENTRY_MS_TYPE => 'n/a',
+						ENTRY_PRECURSOR_TYPE => 'n/a',
+						ENTRY_INSTRUMENT_TYPE => 'n/a',
+						ENTRY_SCORE => 0,
+						ENTRY_ENTRY_INCHI => 'n/a',
+		    		) ;
+		    		push ( @{ $tbody_object->[$index_page]{MASSES}[$index_mz]{ENTRIES} }, \%entry) ;
+    		}
+    		
+    		## sorted by score
+    		my @sorted = () ;
+    		my @temp = @{ $tbody_object->[$index_page]{MASSES}[$index_mz]{ENTRIES} } ;
+    		if (scalar (@temp) > 1 ) { ## for mz without record (only one entry with NA or 0 values)
+    			@sorted = sort {  $b->{ENTRY_SCORE} <=> $a->{ENTRY_SCORE} } @temp;
+    		}
+    		else {
+    			@sorted = @temp;
+    		}
+    		
+    		$tbody_object->[$index_page]{MASSES}[$index_mz]{ENTRIES} = \@sorted ;
+    		
+    		$index_mz ++ ;
+    		$index_mz_continous ++ ;
+
+    	} ## End foreach mz
+    	$index_page++ ;
+    	
+    } ## End foreach page
+#    print Dumper $tbody_object ;
+    return($tbody_object) ;
+}
+## END of SUB
+
+
 
 1 ;
 
