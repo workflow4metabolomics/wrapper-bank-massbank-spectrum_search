@@ -475,15 +475,12 @@ sub add_massbank_matrix_to_input_matrix {
 ## START of SUB
 sub map_pc_to_generic_json {
     my $self = shift;
-    my ( $pcs, $pcgroups ) = @_ ;
+    my ( $pcs, $pcgroups, $records ) = @_ ;
     
 #    print Dumper $pcgroups ;
+#    print Dumper $records ;
 
-	exit(1) ;
-    my %json_scalar = () ;
     ## JSON DESIGN
-	
-	
 	my %JSON = (
 		QUERY => {},
 		PARAM => {},
@@ -506,6 +503,7 @@ sub map_pc_to_generic_json {
 		exact_mz  => undef,
 		score  => undef,
 		formula => undef,
+		inchi => undef,
 		ms_type => undef,
 		precursor_type => undef,
 		instrument_type => undef,
@@ -521,18 +519,60 @@ sub map_pc_to_generic_json {
     	my $num_res = undef ;
     	
     	if ($pcgroups->{$pc}) {
-    		my %temp ;
-    		$json_scalar{'QUERY'}{$pc} = %temp ;
+			my $pos = 0 ;
+			## foreach mz of the pcgroup
+			foreach my $mz (@{ $pcgroups->{$pc}{mzmed} } ) {
     		
+				my %entry = %oEntry ;
+				##
+				if ( defined $mz ) 								{	$entry{mzmed} = $mz ; }
+				if ( $pcgroups->{$pc}{intervales}{$mz} ) 		{	$entry{mzmin} = $pcgroups->{$pc}{intervales}{$mz}{min} ; }
+				if ( $pcgroups->{$pc}{intervales}{$mz} ) 		{	$entry{mzmax} = $pcgroups->{$pc}{intervales}{$mz}{max} ; }
+				if ( $pcgroups->{$pc}{into}[$pos] )	 			{	$entry{into} = $pcgroups->{$pc}{into}[$pos] ; }
+				if ( defined $pc ) 								{	$entry{pcgroup} = $pc ; }
+				## get RECORDS
+				if ( $pcgroups->{$pc}{enrich_annotation}{$mz} ) 	{
+					
+					my @recs = @{ $pcgroups->{$pc}{enrich_annotation}{$mz} } ;
+					$entry{num_res} = scalar(@recs) ;
+					
+					foreach my $recId (@recs) {
+						
+						my %record = %oRecord ;
+						if ( $records->{$recId} ) 					{ 	$record{id} = $recId ; }
+						if ( $records->{$recId}{exact_mz} ) 		{ 	$record{exact_mz} = $records->{$recId}{exact_mz} ; }
+						if ( $records->{$recId}{formula} ) 			{ 	$record{formula} = $records->{$recId}{formula} ; }
+						if ( $records->{$recId}{ms_type} ) 			{ 	$record{ms_type} = $records->{$recId}{ms_type} ; }
+						if ( $records->{$recId}{precursor_type} ) 	{ 	$record{precursor_type} = $records->{$recId}{precursor_type} ; }
+						if ( $records->{$recId}{instrument_type} ) 	{ 	$record{instrument_type} = $records->{$recId}{instrument_type} ; }
+						if ( $records->{$recId}{names} ) 			{ 	$record{name} = $records->{$recId}{names}[0] ; }
+						if ( $records->{$recId}{inchi} ) 			{ 	$record{inchi} = $records->{$recId}{inchi} ; }
+						## peaks TODO...
+						
+						## Score / BIG SHIT /
+						foreach my $record (@{ $pcgroups->{$pc}{'annotation'}{res} }) {
+			    			if ($record->{id} eq $recId ) {
+			    				$record{score} = $record->{score} ;
+			    				last ;
+			    			}
+			    			else {
+			    				next ;
+			    			}
+			    		} ## foreach record - - - for score
+						$entry{RECORDS}{$recId} = \%record ;
+					} ## foreach recId
+				} ## end IF
     		
-    		
+				$JSON{QUERY}{$mz} = \%entry ;
+				$pos ++ ;
+			} ## End FOREACH MZ
     	}
     	else {
     		warn "The pc group $pc doesn't exist in results !" ;
     	}    	
     }
-    
-	return(\%json_scalar) ;
+#    print Dumper %JSON ;
+	return(\%JSON) ;
 }
 ## END of SUB
 
