@@ -223,7 +223,45 @@ sub write_json_skel {
 }
 ## END of SUB
 
+=head2 METHOD write_html_skel
 
+	## Description : prepare and write the html output file
+	## Input : $html_file_name, $html_object, $html_template
+	## Output : $html_file_name
+	## Usage : my ( $html_file_name ) = write_html_skel( $html_file_name, $html_object ) ;
+	
+=cut
+## START of SUB
+sub write_html_skel {
+	## Retrieve Values
+    my $self = shift ;
+    my ( $html_file_name,  $html_object, $pages , $search_condition, $html_template, $js_path, $css_path ) = @_ ;
+    
+    my $html_file = $$html_file_name ;
+    
+    if ( defined $html_file ) {
+		open ( HTML, ">$html_file" ) or die "Can't create the output file $html_file " ;
+		
+		if (-e $html_template) {
+			my $ohtml = HTML::Template->new(filename => $html_template);
+			$ohtml->param(  JS_GALAXY_PATH => $js_path, CSS_GALAXY_PATH => $css_path  ) ;
+			$ohtml->param(  CONDITIONS => $search_condition  ) ;
+			$ohtml->param(  PAGES_NB => $pages  ) ;
+			$ohtml->param(  PAGES => $html_object  ) ;
+			print HTML $ohtml->output ;
+		}
+		else {
+			croak "Can't fill any html output : No template available ($html_template)\n" ;
+		}
+		
+		close (HTML) ;
+    }
+    else {
+    	croak "No output file name available to write HTML file\n" ;
+    }
+    return(\$html_file) ;
+}
+## END of SUB
 
 1 ;
 
