@@ -612,6 +612,7 @@ sub mapGroupsWithRecords {
 			
 			## map with intervales 
 			foreach my $mz (keys %intervales) {
+				my @filteredIds = () ;
 				my ( $min, $max ) = ( $intervales{$mz}{'min'}, $intervales{$mz}{'max'} ) ;
 				
 				foreach my $id (@annotation_ids) {
@@ -626,8 +627,14 @@ sub mapGroupsWithRecords {
 								if ($peak_mz) {
 									my $record_mz = $peak_mz->{'mz'} ;
 									if ( ($record_mz > $min ) and ($record_mz < $max) ){
+										
+										if (!exists $unik_real_ids{$id}) {
 										$unik_real_ids{$id} = 1 ;
+											push (@filteredIds, $id) ;
 		#								print "$mz - - $id\n" ;
+									}
+										
+										
 									}
 									else {
 										next ;
@@ -648,13 +655,15 @@ sub mapGroupsWithRecords {
 					}
 				}
 				## to avoid multiple ids
-				foreach my $id (keys %unik_real_ids) {
-					push(@real_ids, $id) ;
-				}
+#				foreach my $id (keys %unik_real_ids) {
+#					push(@real_ids, $id) ;
+#				}
 				%unik_real_ids = () ;
-				my @temp = @real_ids ;
+#				my @temp = @real_ids ;
+				my @temp = @filteredIds ;
 				$temp{$pc}{'enrich_annotation'}{$mz} = \@temp ;
 				@real_ids = () ;
+				@filteredIds = () ;
 			} ## End foreach mz
 			@annotation_ids = () ;
 		} ## End foreach pc
