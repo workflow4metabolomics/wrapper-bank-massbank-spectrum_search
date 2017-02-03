@@ -20,32 +20,32 @@
   
   <command><![CDATA[
     perl $__tool_directory__/massbank_ws_searchspectrum.pl
-      -masses="$variableMetadata_in"
+      -masses "${variableMetadata_in}"
       #if str($header.header_choice) == "True":
-        -lineheader="${header.nbheader}"
+        -lineheader "${header.nbheader}"
       #end if
-      -col_mz="$col_mass" -col_pcgroup="$col_pcgroup" -score_threshold="$score_threshold"
+      -col_mz "$col_mass" -col_pcgroup "$col_pcgroup" -score_threshold "$score_threshold"
       #if str($intensity.colint_choice) == "True":
-        -col_int="${intensity.col_int}"
+        -col_int "${intensity.col_int}"
       #end if
       #if str($mode) == "Positive,Negative":
-        -mode="both"
+        -mode "both"
       #else:
-        -mode="$mode"
+        -mode "$mode"
       #end if
       
       #if str($advanced.advanced_settings) == "False":
-        -instruments="all" -max="10" -unit="unit" -tolerance="0.3" -cutoff="50" -server="JP"
+        -instruments "all" -max "10" -unit "unit" -tolerance "0.3" -cutoff "50" -server "JP"
       #else:
-        -instruments="$advanced.instruments" -max="$advanced.max"
-        -unit="$advanced.mz_tolerance.unit" -tolerance="$advanced.mz_tolerance.tolerance"
-        -cutoff="$advanced.cutoff" -server="$advanced.server"
+        -instruments "${advanced.instruments}" -max "${advanced.max}"
+        -unit "${advanced.mz_tolerance.unit}" -tolerance "${advanced.mz_tolerance.tolerance}"
+        -cutoff "${advanced.cutoff}" -server "${advanced.server}"
       #end if
 
-      -output_tabular="$variableMetadata"
-      -output_xlsx="$massBankSpectraOutXlsx"
-      -output_json="$massBankSpectraOutJson"
-      -output_html="$massBankSpectraOutWeb"
+      -output_tabular "$variableMetadata"
+      -output_xlsx "$massBankSpectraOutXlsx"
+      -output_json "$massBankSpectraOutJson"
+      -output_html "$massBankSpectraOutWeb"
   ]]></command>
   
   <inputs>
