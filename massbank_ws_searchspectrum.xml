@@ -1,4 +1,4 @@
-<tool id="massbank_ws_searchspectrum" name="MassBank spectrum searches" version="2016-02-19">
+<tool id="massbank_ws_searchspectrum" name="MassBank spectrum searches" version="2017-02-06">
   <description>
        : Search by pseudo-spectra on a High Quality Mass Spectral Database.
   </description>
@@ -173,10 +173,8 @@
 
 .. class:: infomark
 
-**Please cite** If you use this tool, please cite MassBank.
+**Please cite** If you use this tool, please cite MassBank (http://www.massbank.jp)
 
-for MassBank. .. _here: http://www.massbank.jp
-  `H. Horai, M. Arita, S. Kanaya, Y. Nihei, T. Ikeda, K. Suwa. Y. Ojima, K. Tanaka, S. Tanaka, K. Aoshima, Y. Oda, Y. Kakazu, M. Kusano, T. Tohge, F. Matsuda, Y. Sawada, M. Yokota Hirai, H. Nakanishi, K. Ikeda, N. Akimoto, T. Maoka, H. Takahashi, T. Ara, N. Sakurai, H. Suzuki, D. Shibata, S. Neumann, T. Iida, K. Tanaka, K. Funatsu, F. Matsuura, T. Soga, R. Taguchi, K. Saito and T. Nishioka, (2010). "MassBank: A public repository for sharing mass spectral data for life sciences." J. Mass Spectrom., 45, 703-714. &lt;http://www.ncbi.nlm.nih.gov/pubmed/20623627&gt;`_
 
 ==============
 wsdl_MassBank
@@ -207,9 +205,9 @@ Input files
 | 1 : variableMetadata    |  tabular  |
 +-------------------------+-----------+
 
-File variableMetadata must have at least the 2 following column : 
+File variableMetadata must have at least the 3 following column : 
 	* Masses : column with all the masses in the tabular input file
-	* Intensities : column with all the intensities in the tabular input file (Optionnal)
+	* Intensities : column with all the intensities in the tabular input file (Optionnal but if you haven't intensitt values, please use the Massbank peak search tool)
 	* PCgroups : column with all the pcgroups in the tabular input file
 
 
