@@ -2,7 +2,6 @@
   <description>
        : Search by pseudo-spectra on a High Quality Mass Spectral Database.
   </description>
-  
   <requirements>
   <!-- Waiting for conda improvement in Galaxy
       <requirement type="package" version="1.19">perl-soap-lite</requirement>
@@ -13,14 +12,11 @@
       <requirement type="package" version="1.33">perl-text-csv</requirement>
   -->
   </requirements>
-  
   <stdio>
-      <exit_code range="1" level="fatal" />
+    <exit_code level="fatal" range="1"/>
   </stdio>
-  
   <command><![CDATA[
-    perl $__tool_directory__/massbank_ws_searchspectrum.pl
-      -masses "${variableMetadata_in}"
+    perl $__tool_directory__/massbank_ws_searchspectrum.pl -masses "${variableMetadata_in}"
       #if str($header.header_choice) == "True":
         -lineheader "${header.nbheader}"
       #end if
@@ -46,36 +42,36 @@
       -output_xlsx "$massBankSpectraOutXlsx"
       -output_json "$massBankSpectraOutJson"
       -output_html "$massBankSpectraOutWeb"
+
   ]]></command>
-  
   <inputs>
-    <param name="variableMetadata_in" label="File of masses (format: tabular)" format="tabular" type="data" help="Generally variable metadata file" />
+    <param format="tabular" help="Generally variable metadata file" label="File of masses (format: tabular)" name="variableMetadata_in" type="data"/>
     <conditional name="header">
-      <param name="header_choice" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="Do you have a header?" help="if 'YES' is selected then enter your number of header lines" />
+      <param checked="true" falsevalue="no" help="if 'YES' is selected then enter your number of header lines" label="Do you have a header?" name="header_choice" truevalue="yes" type="boolean"/>
       <when value="yes">
-        <param name="nbheader" type="integer" label="Number of header lines" value="1" min="1" max="10" help="number of lines not containing masses"/>
+        <param help="number of lines not containing masses" label="Number of header lines" max="10" min="1" name="nbheader" type="integer" value="1"/>
       </when>
       <when value="no"/>
     </conditional>
-    <param name="col_mz" label="Column of masses (MZ)" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
-    <param name="col_pcgroup" label="Column of pcgroup" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+    <param accept_default="true" data_ref="variableMetadata_in" label="Column of masses (MZ)" name="col_mz" type="data_column"/>
+    <param accept_default="true" data_ref="variableMetadata_in" label="Column of pcgroup" name="col_pcgroup" type="data_column"/>
     <conditional name="intensity">
-      <param name="colint_choice" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Do you have a column of intensity?" help="if 'YES' is selected then indicate your column of intensity" />
+      <param checked="false" falsevalue="no" help="if 'YES' is selected then indicate your column of intensity" label="Do you have a column of intensity?" name="colint_choice" truevalue="yes" type="boolean"/>
       <when value="yes">
-        <param name="col_int" label="Column of intensity" type="data_column" data_ref="variableMetadata_in" accept_default="true" />
+        <param accept_default="true" data_ref="variableMetadata_in" label="Column of intensity" name="col_int" type="data_column"/>
       </when>
       <when value="no"/>
     </conditional>
-    <param name="mode" label="What kind of Ionization Search will be done?" type="select" display="checkboxes" multiple="True" help="">
-      <option value="Positive" selected="True">Positif Mode</option>
-      <option value="Negative" selected="True">Negatif Mode</option>
+    <param display="checkboxes" help="" label="What kind of Ionization Search will be done?" multiple="True" name="mode" type="select">
+      <option selected="True" value="Positive">Positif Mode</option>
+      <option selected="True" value="Negative">Negatif Mode</option>
     </param>
-    <param name="score_threshold" label="Score threshold to apply on returned MassBank results" type="float" value="0.5" min="0" max="1" help="Default value is 0.5."/>
+    <param help="Default value is 0.5." label="Score threshold to apply on returned MassBank results" max="1" min="0" name="score_threshold" type="float" value="0.5"/>
     <conditional name="advanced">
-      <param name="advanced_settings" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Show advanced settings?" help="if 'NO' is selected then defaults values are: instruments = all ; max = 10 ; unit = unit ; tolerance = 0.3 ; cutoff = 50 ; server = JP" />
+      <param checked="false" falsevalue="no" help="if 'NO' is selected then defaults values are: instruments = all ; max = 10 ; unit = unit ; tolerance = 0.3 ; cutoff = 50 ; server = JP" label="Show advanced settings?" name="advanced_settings" truevalue="yes" type="boolean"/>
       <when value="yes">
-        <param name="instruments" label="What kind of Instruments will be use?" type="select" display="checkboxes" multiple="True" help="">
-          <option value="all" selected="True">All</option>
+        <param display="checkboxes" help="" label="What kind of Instruments will be use?" multiple="True" name="instruments" type="select">
+          <option selected="True" value="all">All</option>
           <option value="APCI-ITFT">APCI-ITFT</option>
           <option value="APCI-ITTOF">APCI-ITTOF</option>
           <option value="CE-ESI-TOF">CE-ESI-TOF</option>
@@ -106,69 +102,65 @@
           <option value="MALDI-TOF">MALDI-TOF</option>
           <option value="MALDI-TOFTOF">MALDI-TOFTOF</option>
         </param>
-        <param name="max" type="integer" label="Maximum number of search results" value="10" min="0" max="50" help="'0' means unspecified and then all results are obtained."/>
+        <param help="'0' means unspecified and then all results are obtained." label="Maximum number of search results" max="50" min="0" name="max" type="integer" value="10"/>
         <conditional name="mz_tolerance">
-          <param name="unit" label="Unit of tolerance" type="select" display="radio" help="">
-            <option value="unit" selected="True">unit</option>
+          <param display="radio" help="" label="Unit of tolerance" name="unit" type="select">
+            <option selected="True" value="unit">unit</option>
             <option value="ppm">ppm</option>
           </param>
           <when value="unit">
-            <param name="tolerance" label="Tolerance of values of m/z of peaks (in unit)" type="float" value="0.3" min="0" max="10" help="Default value is 0.3 unit."/>
+            <param help="Default value is 0.3 unit." label="Tolerance of values of m/z of peaks (in unit)" max="10" min="0" name="tolerance" type="float" value="0.3"/>
           </when>
           <when value="ppm">
-            <param name="tolerance" label="Tolerance of values of m/z of peaks (in ppm)" type="integer" value="50" min="0" max="5000" help="Default value is 50 ppm."/>
+            <param help="Default value is 50 ppm." label="Tolerance of values of m/z of peaks (in ppm)" max="5000" min="0" name="tolerance" type="integer" value="50"/>
           </when>
         </conditional>
-        <param name="cutoff" label="Ignore peaks whose intensity is not larger than the value of cutoff" type="integer" value="50" min="0" max="5000000" help="Ignore peaks whose intensity is not larger than the value of cutoff."/>
-        <param name="server" label="Which MassBank server start searching?" type="select" display="radio" help="">
-          <option value="JP" selected="True">Japon (JP)</option>
+        <param help="Ignore peaks whose intensity is not larger than the value of cutoff." label="Ignore peaks whose intensity is not larger than the value of cutoff" max="5000000" min="0" name="cutoff" type="integer" value="50"/>
+        <param display="radio" help="" label="Which MassBank server start searching?" name="server" type="select">
+          <option selected="True" value="JP">Japon (JP)</option>
           <option value="EU">Europe (EU)</option>
         </param>
       </when>
       <when value="no"/>
     </conditional>
   </inputs>
-  
   <outputs>
-    <data name="variableMetadata" label="${input_type.masses.name[:-6]}.MASSBANK.tabular" format="tabular" />
-    <data name="massBankSpectraOutWeb" format="html" label="${input_type.masses.name[:-6]}.MASSBANK_WEB.html" />
-    <data name="massBankSpectraOutXlsx" label="${input_type.masses.name[:-6]}.MASSBANK_XLS.txt" format="tabular" />
-    <data name="massBankSpectraOutJson" label="${input_type.masses.name[:-6]}.MASSBANK_JSON.txt" format="txt" />
+    <data format="tabular" label="${input_type.masses.name[:-6]}.MASSBANK.tabular" name="variableMetadata"/>
+    <data format="html" label="${input_type.masses.name[:-6]}.MASSBANK_WEB.html" name="massBankSpectraOutWeb"/>
+    <data format="tabular" label="${input_type.masses.name[:-6]}.MASSBANK_XLS.txt" name="massBankSpectraOutXlsx"/>
+    <data format="txt" label="${input_type.masses.name[:-6]}.MASSBANK_JSON.txt" name="massBankSpectraOutJson"/>
   </outputs>
-  
   <tests>
-  	<test>
-  		<!--test 01 short result -  -->
-  		<param name="masses" value="input01_69-pcgroups-mz-relative_int.tabular"/>
-  		<param name="header_choice" value="yes"/>
-  		<param name="nbheader" value="1"/>
-  		<param name="col_mz" value="1"/>
-  		<param name="col_pcgroup" value="14"/>
-  		<param name="colint_choice" value="yes"/>
-  		<param name="col_int" value="7"/>
-  		<param name="mode" value="Positive"/>
-  		<param name="score_threshold" value="0.5"/>
-  		<param name="advanced_settings" value="yes"/>
-  		<param name="instruments" value="all"/>
-  		<param name="max" value="20"/>
-  		<param name="unit" value="unit"/>
-  		<param name="tolerance" value="0.3"/>
-  		<param name="cutoff" value="50"/>
-  		<param name="server" value="JP"/>
-  		
-  		<output name="variableMetadata" file="out_test01.tabular"/>
-  		<output name="massBankSpectraOutWeb" file="out_test01.html"/>
-  		<output name="massBankSpectraOutXlsx" file="out_test01.txt"/>
-  		<output name="massBankSpectraOutJson" file="out_test01.json"/>
-  	</test>
-  	<test>
+    <test>
+      <!--test 01 short result -  -->
+      <param name="masses" value="input01_69-pcgroups-mz-relative_int.tabular"/>
+      <param name="header_choice" value="yes"/>
+      <param name="nbheader" value="1"/>
+      <param name="col_mz" value="1"/>
+      <param name="col_pcgroup" value="14"/>
+      <param name="colint_choice" value="yes"/>
+      <param name="col_int" value="7"/>
+      <param name="mode" value="Positive"/>
+      <param name="score_threshold" value="0.5"/>
+      <param name="advanced_settings" value="yes"/>
+      <param name="instruments" value="all"/>
+      <param name="max" value="20"/>
+      <param name="unit" value="unit"/>
+      <param name="tolerance" value="0.3"/>
+      <param name="cutoff" value="50"/>
+      <param name="server" value="JP"/>
+      <output file="out_test01.tabular" name="variableMetadata"/>
+      <output file="out_test01.html" name="massBankSpectraOutWeb"/>
+      <output file="out_test01.txt" name="massBankSpectraOutXlsx"/>
+      <output file="out_test01.json" name="massBankSpectraOutJson"/>
+    </test>
+    <test>
   		<!--test 02 : lot of results - 3 columns file-->
   	</test>
-  	<test>
+    <test>
   		<!--test 03 : fake results - with high threshold -->
   	</test>
   </tests>
-
   <help><![CDATA[
 
 .. class:: infomark
@@ -273,8 +265,8 @@ And their "W4M courses 2016":
  | Annotation Banks - Annotation  
 	
 	]]></help>
-      <!-- [RECOMMANDED] All citations associated to this tool (main citation given above and other references). Can be extracted from the history panel -->
-    <citations>
-        <citation type="doi">10.1002/jms.1777</citation>
-    </citations>
+  <!-- [RECOMMANDED] All citations associated to this tool (main citation given above and other references). Can be extracted from the history panel -->
+  <citations>
+    <citation type="doi">10.1002/jms.1777</citation>
+  </citations>
 </tool>
