@@ -57,7 +57,7 @@
     <param accept_default="true" data_ref="variableMetadata_in" label="Column of masses (MZ)" name="col_mz" type="data_column"/>
     <param accept_default="true" data_ref="variableMetadata_in" label="Column of pcgroup" name="col_pcgroup" type="data_column"/>
     <conditional name="intensity">
-      <param checked="false" falsevalue="false" help="if 'YES' is selected then indicate your column of intensity" label="Do you have a column of intensity?" name="colint_choice" truevalue="true" type="boolean"/>
+      <param checked="true" falsevalue="false" help="if 'No' is selected, the value of intensity for each mz is set to 10 (MassBank spectrum search require mz-pcgroup-intensity data - please use massbank peak search if needed)" label="Do you have a column of intensity?" name="colint_choice" truevalue="true" type="boolean"/>
       <when value="true">
         <param accept_default="true" data_ref="variableMetadata_in" label="Column of intensity" name="col_int" type="data_column"/>
       </when>
