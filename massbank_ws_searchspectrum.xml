@@ -16,60 +16,61 @@
     <exit_code level="fatal" range="1"/>
   </stdio>
   <command><![CDATA[
-    perl $__tool_directory__/massbank_ws_searchspectrum.pl -masses "${variableMetadata_in}"
-      #if str($header.header_choice) == "True":
-        -lineheader "${header.nbheader}"
-      #end if
-      -col_mz "$col_mass" -col_pcgroup "$col_pcgroup" -score_threshold "$score_threshold"
-      #if str($intensity.colint_choice) == "True":
-        -col_int "${intensity.col_int}"
-      #end if
-      #if str($mode) == "Positive,Negative":
-        -mode "both"
-      #else:
-        -mode "$mode"
-      #end if
-      
-      #if str($advanced.advanced_settings) == "False":
-        -instruments "all" -max "10" -unit "unit" -tolerance "0.3" -cutoff "50" -server "JP"
-      #else:
-        -instruments "${advanced.instruments}" -max "${advanced.max}"
-        -unit "${advanced.mz_tolerance.unit}" -tolerance "${advanced.mz_tolerance.tolerance}"
-        -cutoff "${advanced.cutoff}" -server "${advanced.server}"
-      #end if
-
-      -output_tabular "$variableMetadata"
-      -output_xlsx "$massBankSpectraOutXlsx"
-      -output_json "$massBankSpectraOutJson"
-      -output_html "$massBankSpectraOutWeb"
+	perl $__tool_directory__/massbank_ws_searchspectrum.pl -masses "${variableMetadata_in}" -col_mz "$col_mz" -col_pcgroup "$col_pcgroup" -score_threshold "$score_threshold"
+		#if str($header.header_choice) == "true":
+			-lineheader "${header.nbheader}"
+		#end if
+		
+		#if str($intensity.colint_choice) == "true":
+			-col_int "${intensity.col_int}"
+		#end if
+		
+		#if str($mode) == "Positive,Negative":
+			-mode "both"
+		#else:
+			-mode "$mode"
+		#end if
+		
+		#if str($advanced.advanced_settings) == "false":
+			-instruments "all" -max "10" -unit "unit" -tolerance "0.3" -cutoff "50" -server "JP"
+		#else:
+			-instruments "${advanced.instruments}" -max "${advanced.max}"
+			-unit "${advanced.mz_tolerance.unit}" -tolerance "${advanced.mz_tolerance.tolerance}"
+			-cutoff "${advanced.cutoff}" -server "${advanced.server}"
+		#end if
+		
+		-output_tabular "$variableMetadata_out"
+		-output_xlsx "$massBankSpectraOutXlsx"
+		-output_json "$massBankSpectraOutJson"
+		-output_html "$massBankSpectraOutWeb"
 
   ]]></command>
   <inputs>
     <param format="tabular" help="Generally variable metadata file" label="File of masses (format: tabular)" name="variableMetadata_in" type="data"/>
     <conditional name="header">
-      <param checked="true" falsevalue="no" help="if 'YES' is selected then enter your number of header lines" label="Do you have a header?" name="header_choice" truevalue="yes" type="boolean"/>
-      <when value="yes">
+      <param checked="true" falsevalue="false" help="if 'YES' is selected then enter your number of header lines" label="Do you have a header?" name="header_choice" truevalue="true" type="boolean"/>
+      <when value="true">
         <param help="number of lines not containing masses" label="Number of header lines" max="10" min="1" name="nbheader" type="integer" value="1"/>
       </when>
-      <when value="no"/>
+      <when value="false"/>
     </conditional>
     <param accept_default="true" data_ref="variableMetadata_in" label="Column of masses (MZ)" name="col_mz" type="data_column"/>
     <param accept_default="true" data_ref="variableMetadata_in" label="Column of pcgroup" name="col_pcgroup" type="data_column"/>
     <conditional name="intensity">
-      <param checked="false" falsevalue="no" help="if 'YES' is selected then indicate your column of intensity" label="Do you have a column of intensity?" name="colint_choice" truevalue="yes" type="boolean"/>
-      <when value="yes">
+      <param checked="false" falsevalue="false" help="if 'YES' is selected then indicate your column of intensity" label="Do you have a column of intensity?" name="colint_choice" truevalue="true" type="boolean"/>
+      <when value="true">
         <param accept_default="true" data_ref="variableMetadata_in" label="Column of intensity" name="col_int" type="data_column"/>
       </when>
-      <when value="no"/>
+      <when value="false"/>
     </conditional>
     <param display="checkboxes" help="" label="What kind of Ionization Search will be done?" multiple="True" name="mode" type="select">
-      <option selected="True" value="Positive">Positif Mode</option>
-      <option selected="True" value="Negative">Negatif Mode</option>
+      <option selected="true" value="Positive">Positif Mode</option>
+      <option selected="true" value="Negative">Negatif Mode</option>
     </param>
     <param help="Default value is 0.5." label="Score threshold to apply on returned MassBank results" max="1" min="0" name="score_threshold" type="float" value="0.5"/>
     <conditional name="advanced">
-      <param checked="false" falsevalue="no" help="if 'NO' is selected then defaults values are: instruments = all ; max = 10 ; unit = unit ; tolerance = 0.3 ; cutoff = 50 ; server = JP" label="Show advanced settings?" name="advanced_settings" truevalue="yes" type="boolean"/>
-      <when value="yes">
+      <param checked="false" falsevalue="false" help="if 'NO' is selected then defaults values are: instruments = all ; max = 10 ; unit = unit ; tolerance = 0.3 ; cutoff = 50 ; server = JP" label="Show advanced settings?" name="advanced_settings" truevalue="true" type="boolean"/>
+      <when value="true">
         <param display="checkboxes" help="" label="What kind of Instruments will be use?" multiple="True" name="instruments" type="select">
           <option selected="True" value="all">All</option>
           <option value="APCI-ITFT">APCI-ITFT</option>
@@ -121,35 +122,35 @@
           <option value="EU">Europe (EU)</option>
         </param>
       </when>
-      <when value="no"/>
+      <when value="false"/>
     </conditional>
   </inputs>
   <outputs>
-    <data format="tabular" label="${input_type.masses.name[:-6]}.MASSBANK.tabular" name="variableMetadata"/>
-    <data format="html" label="${input_type.masses.name[:-6]}.MASSBANK_WEB.html" name="massBankSpectraOutWeb"/>
-    <data format="tabular" label="${input_type.masses.name[:-6]}.MASSBANK_XLS.txt" name="massBankSpectraOutXlsx"/>
-    <data format="txt" label="${input_type.masses.name[:-6]}.MASSBANK_JSON.txt" name="massBankSpectraOutJson"/>
+    <data format="tabular" label="${variableMetadata_in.name[:-6]}.MASSBANK.tabular" name="variableMetadata_out"/>
+    <data format="html" label="${variableMetadata_in.name[:-6]}.MASSBANK_WEB.html" name="massBankSpectraOutWeb"/>
+    <data format="tabular" label="${variableMetadata_in.name[:-6]}.MASSBANK_XLS.txt" name="massBankSpectraOutXlsx"/>
+    <data format="txt" label="${variableMetadata_in.name[:-6]}.MASSBANK_JSON.txt" name="massBankSpectraOutJson"/>
   </outputs>
   <tests>
     <test>
       <!--test 01 short result -  -->
       <param name="masses" value="input01_69-pcgroups-mz-relative_int.tabular"/>
-      <param name="header_choice" value="yes"/>
+      <param name="header_choice" value="true"/>
       <param name="nbheader" value="1"/>
       <param name="col_mz" value="1"/>
       <param name="col_pcgroup" value="14"/>
-      <param name="colint_choice" value="yes"/>
+      <param name="colint_choice" value="true"/>
       <param name="col_int" value="7"/>
       <param name="mode" value="Positive"/>
       <param name="score_threshold" value="0.5"/>
-      <param name="advanced_settings" value="yes"/>
+      <param name="advanced_settings" value="true"/>
       <param name="instruments" value="all"/>
       <param name="max" value="20"/>
       <param name="unit" value="unit"/>
       <param name="tolerance" value="0.3"/>
       <param name="cutoff" value="50"/>
       <param name="server" value="JP"/>
-      <output file="out_test01.tabular" name="variableMetadata"/>
+      <output file="out_test01.tabular" name="variableMetadata_out"/>
       <output file="out_test01.html" name="massBankSpectraOutWeb"/>
       <output file="out_test01.txt" name="massBankSpectraOutXlsx"/>
       <output file="out_test01.json" name="massBankSpectraOutJson"/>
