@@ -929,7 +929,7 @@ sub get_ms_record_links_data {
     
     ## Internal reference for MASSBANK and RESPECT
     
-    my @massbank_id = ( 'GLS', 'AU', 'MSJ', 'ML','FIO', 'UF', 'CO', 'UO', 'TT', 'OUF', 'MCH', 'NU', 'KNA', 'MT', 'CE', 'KO', 'KZ', 'JEL', 'JP', 'PR', 'BML', 'CA', 'TY', 'PB', 'FU', 'EA', 'UT', 'BSU', 'WA' ) ;
+    my @massbank_id = ( 'TUE', 'GLS', 'AU', 'MSJ', 'ML','FIO', 'UF', 'CO', 'UO', 'TT', 'OUF', 'MCH', 'NU', 'KNA', 'MT', 'CE', 'KO', 'KZ', 'JEL', 'JP', 'PR', 'BML', 'CA', 'TY', 'PB', 'FU', 'EA', 'UT', 'BSU', 'WA' ) ;
     my @respect_id = ( 'PS', 'PT', 'PM' ) ;
     
     my $dabase_used = undef ;

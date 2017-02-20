@@ -405,6 +405,8 @@ sub searchSpectrum() {
 					$numdats = $som->valueof('//numResults') ;
 					my $i ;
 					my @res = () ;
+					
+					if (!defined $numdats) { $numdats = 0 ;	}
 					## For results
 					if ($numdats > 0) {
 						## insert nb of res 

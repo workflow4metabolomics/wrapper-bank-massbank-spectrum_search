@@ -160,7 +160,7 @@ sub filter_pcgroup_res {
 					$temp{$pc}{'massbank_ids'} = \@ids ;
 			}
 			else {
-				warn "No result found for this pcgroup\n" ;
+				warn "No result found for this pcgroup $pc\n" ;
 			}
 		}
 	} ## End IF
@@ -271,8 +271,17 @@ sub compute_ids_from_pcgroups_res {
 				push (@ids , @{ $pcgroups->{$pc}{'massbank_ids'} } ) ;
 			}
 		}
-		@unique = do { my %seen; grep { !$seen{$_}++ } @ids };
-		@unique = sort { $a cmp $b } @unique;
+		
+		if ( ( scalar (@ids) ) > 0 ) {
+#			print Dumper @ids ;
+			@unique = do { my %seen; grep { !$seen{$_}++ if (defined $_) } @ids };
+			@unique = sort { $a cmp $b } @unique;
+		}
+		else {
+			@unique = () ;
+		}
+		
+		
 	}
     return (\@unique) ;
 }
@@ -617,7 +626,7 @@ sub mapGroupsWithRecords {
 				
 				foreach my $id (@annotation_ids) {
 #					print "Analyse mzs of id: $id...\n" ;
-					if ($records->{$id}) {
+					if ( (defined $id) and ( $records->{$id}) ) {
 						
 						my %currentRecord = %{$records->{$id}} ;
 						
@@ -650,10 +659,16 @@ sub mapGroupsWithRecords {
 						}
 					}
 					else {
-						warn "The id $id seems to be not present in getting records\n" ;
+						if (defined $id) {
+							warn "The id $id seems to be not present in getting records\n" ;
+						}
+						else {
+							warn "This catched id seems to be undef in getting records\n" ;
+						}
+						
 						next ;
 					}
-				}
+				} ## end foreach
 				## to avoid multiple ids
 #				foreach my $id (keys %unik_real_ids) {
 #					push(@real_ids, $id) ;

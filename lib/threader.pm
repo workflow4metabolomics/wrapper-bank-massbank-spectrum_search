@@ -85,6 +85,8 @@ sub searchSpectrumWorker {
 		my ($result, $num) = eval{$oquery->searchSpectrum($soap, $pcgroup->{'id'}, $pcgroup->{'mzmed'}, $pcgroup->{'into'}, $ion_mode, $instruments, $max, $unit, $tol, $cutoff) ; } or die;
 #		print "The query send to massbank return $num entries...\n" ;
 #		print Dumper $result ;
+
+		if (!defined $num) { $num = 0  ; }
 		if ($num >= 0 ) {
 			push @results, $result ;
 		}
