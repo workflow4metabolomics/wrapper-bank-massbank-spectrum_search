@@ -16,5 +16,5 @@ script:
  - planemo lint ${TRAVIS_BUILD_DIR}
  - planemo test --conda_auto_init --conda_auto_install --conda_dependency_resolution --galaxy_branch $GALAXY_RELEASE --no_cache_galaxy ${TRAVIS_BUILD_DIR}
 
- after_script:
-- python html2text.py ${TRAVIS_BUILD_DIR}/tool_test_output.html
+after_failure:
+- cat ${TRAVIS_BUILD_DIR}/tool_test_output.html
