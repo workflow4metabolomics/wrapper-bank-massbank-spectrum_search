@@ -96,7 +96,10 @@ sub connectMassBankDE() {
 #		-> proxy('http://massbank.ufz.de/MassBank/api/services/MassBankAPI?wsdl', timeout => 500 )
 		-> proxy('http://massbank.normandata.eu/MassBank/api/services/MassBankAPI?wsdl', timeout => 500 )
 		-> on_fault(sub { my($soap, $res) = @_; 
-         die ref $res ? $res->faultstring : $soap->transport->status, "\n";});
+         eval { die ref $res ? $res->faultstring : $soap->transport->status, "\n"};
+         return ref $res ? $res : new SOAP::SOM ;
+         });
+         
 	return ($osoap);
 }
 ### END of SUB
@@ -174,43 +177,131 @@ sub getRecordInfo() {
     my $self = shift ;
 	my ($osoap, $ids) = @_ ;
 	
+	# init in case :
 	my @dats = () ;
+	my $numdats = 0 ;
     
     if ( defined $ids ) {
-    	
-    	my @query = @{$ids} ;
-    	my $nb_ids = scalar (@query) ;
+    	my $nb_ids = scalar (@{$ids}) ;
     	
     	if ( $nb_ids > 0 ) {
-			my $method = SOAP::Data->name('getRecordInfo') ->attr({xmlns => 'http://api.massbank'});
-			my @params = ( SOAP::Data->name('ids' => @query  ) );
-			# Call method
-			my $som = $osoap->call($method => @params);
-		    ## DETECTING A SOAP FAULT
-			if ($som->fault) {
-				push(@dats, undef) ;
-				warn "\t\t WARN: The query Id is false, MassBank don't find any record\n" ;
-			}
-			else {
-				if ($som->valueof('//info') ne '') { # avoid to fill array with false id returning '' value
-					@dats = $som->valueof('//info');	
+    		
+    		my @ids = @{$ids} ;
+			
+			my @params = ( SOAP::Data->name('ids' => @ids  ) );
+			
+			my $data = SOAP::Data -> value(@params);
+			my $som = $osoap -> getRecordInfo($data);
+			
+		    ## DETECTING A SOAP FAULT OR NOT
+		    if ( $som ) {
+		    	if ($som->fault) {
+		    		carp "\t\t WARN: The query Id is false, MassBank don't find any record\n" ;
+					push( @dats, undef ) ; 
 				}
 				else {
-					warn "\t\t WARN: The query Id is false, MassBank don't find any record\n" ;
-				}
-			}
+					if (!defined $som->valueof('//info')) {
+						carp "\t\t WARN: The query Id is undef, and MassBank won't find any record\n" ;
+					}
+					elsif ($som->valueof('//info') ne '') { # avoid to fill array with false id returning '' value
+						@dats = $som->valueof('//info');	
+					}
+					else {
+						carp "\t\t WARN: The query Id is false, MassBank don't find any record\n" ;
+					}
+	    		}
+		    }
+		    else {
+		    	carp "The som return (from the getRecordInfo method) isn't defined\n" ; }
     	}
-    	else {
-    		warn "\t\t WARN: Query Ids list is empty, MassBank soap will be quiet\n" ;
-    	}
+    	else { carp "Query MZs list is empty, MassBank soap will stop\n" ; }
     }
-    else {
-    	warn "\t\t WARN: Query Ids list is undef, MassBank soap will be quiet\n" ;
-    }
-    
+    else { carp "Query MZs list is undef, MassBank soap will stop\n" ; }
+
     return(\@dats) ;
 }
+
+
+
+
 ### END of SUB
+
+=head2 METHOD initRecordObject
+
+	## Description : init a massbank record object from a string
+	## Input : $string
+	## Output : $orecord
+	## Usage : my ( $orecord ) = initRecordObject ( $string ) ;
+	
+=cut
+## START of SUB
+sub initRecordObject {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $string ) = @_;
+    my ( %orecord ) = ( () ) ;
+    
+    if (defined $string) {
+    	my $pkcheck = 0 ;
+    	my (@mzs, @int, @relint) = ( (), (), () ) ;
+    	my @features = split(/\n/, $string) ;
+
+    	foreach (@features) {
+    		## for all key:value
+    		## todo : known issue with "COMMENT" part (wrong split)
+    		if ($_ =~ /(.+):(.+)/) {
+    			my ($key, $string)  = ($1, $2 );
+    			$string =~ s/^\s+|\s+$//g;
+    			$orecord{$key} = $string ;
+    			if ($key =~/^PK\$PEAK/) {
+    				$pkcheck = 1 ;
+    				(@mzs, @int, @relint) = ( (), (), () ) ;
+    			}
+    		}
+    		elsif ($pkcheck == 1) {
+    			## case 01 : m/z int. rel.int.
+    			if ($_ =~ /\s+(.+)\s+(.+)\s+(.+)/) {
+    				push (@mzs, $1) ; push (@int, $2) ; push (@relint, $3) ;
+    			}
+    		}
+    	}
+    	## init mzs, int and relint
+    	my %tmp = () ;
+    	$tmp{'mz'} =  \@mzs ;
+    	$tmp{'int'} =  \@int ;
+    	$tmp{'relint'} =  \@relint ;
+    	$orecord{'PK$PEAK'} = \%tmp ;
+    }
+    else {
+    	warn "The given massbank string is undef\n" ;
+    }
+    
+    return (\%orecord) ;
+}
+### END of SUB
+
+=head2 METHOD getRecordInfoId
+
+	## Description : get the Id value in the massbank info string
+	## Input : $orecord
+	## Output : $orecord
+	## Usage : my ( $orecord ) = getRecordInfoId ( $record ) ;
+	
+=cut
+## START of SUB
+sub getRecordInfoId {
+    ## Retrieve Values
+    my $self = shift ;
+    my ( $orecord ) = @_;
+
+    my $id = undef ;
+    if ($orecord->{'ACCESSION'}) { $id = $orecord->{'ACCESSION'} ; }
+    else { $id = 'NA' ; }
+    return (\$id) ;
+}
+### END of SUB
+
+
 
 
 
@@ -309,10 +400,13 @@ sub searchSpectrum() {
 					$ret{'fault'} = $som->faultstring; $ret{'num_res'} = -1 ; 
 				}
 				else {
+#					print Dumper $som ;
 					@dats = $som->valueof('//results/[>0]'); 
 					$numdats = $som->valueof('//numResults') ;
 					my $i ;
 					my @res = () ;
+					
+					if (!defined $numdats) { $numdats = 0 ;	}
 					## For results
 					if ($numdats > 0) {
 						## insert nb of res 
@@ -320,12 +414,28 @@ sub searchSpectrum() {
 						$ret{ 'pcgroup_id'} = $pcgroup_id ;
 						
 						## manage mapping for spectral features
+						
+#						print Dumper @dats ; ## Bug with order depending of spectra source :
+						
 						for ( $i = 0; $i < $numdats; $i ++ ) {
 							my ($exactMass, $formula, $id, $score, $title) = @dats[($i * 5) .. ($i * 5 + 4)];
-							my (%val) = ('id', $id, 'title', $title, 'formula', $formula, 'exactMass', $exactMass, 'score', $score);
-							push(@res, { %val });
+							
+							## manage issue from massbank like ID MSJ00002 and formula == 1 FROM WS
+							if ($formula eq '1') {
+#								print "-------> WS sent mixed value for $id (EM:$exactMass, F:$formula, ID:$id, SC:$score, TI:$title)\n" ;
+								my (%val) = ('id', $title, 'title', $id, 'formula', $exactMass, 'exactMass', 'NA', 'score', $score);
+								push(@res, { %val });
+							}
+							else {
+								my (%val) = ('id', $id, 'title', $title, 'formula', $formula, 'exactMass', $exactMass, 'score', $score);
+								push(@res, { %val });
+							}
 						}
-						$ret{'res'} = \@res;
+						
+						## order res by score
+						my @sorted =  sort { $a->{score} <=> $b->{score} } @res;
+						
+						$ret{'res'} = \@sorted;
 					}
 					## for no results for the query
 					else {

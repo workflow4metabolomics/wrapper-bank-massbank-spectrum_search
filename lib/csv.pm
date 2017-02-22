@@ -143,7 +143,7 @@ sub get_value_from_csv_multi_header {
 	
 	while (<CSV>) {
 		$line++ ;
-	    chop $_ ;
+	    chomp $_ ;
 		# file has a header
 		if ( defined $is_header and $is_header eq 'yes') { if ($line <= $nb_header) { next ; } }
 		# parsing the targeted column
@@ -239,6 +239,7 @@ sub write_csv_from_arrays {
     
     my $fh = undef ;
     $csv->eol ("\n"); ##  end-of-line string to add to rows
+    $csv->quote_char(undef) ;
     open $fh, ">:encoding(utf8)", "$file_name" or die "$file_name: $!";
     
 	my $status = $csv->print ($fh, $_) for @{$rows};
