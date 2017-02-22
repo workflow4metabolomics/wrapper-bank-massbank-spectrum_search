@@ -5,10 +5,11 @@
   <requirements>
     <requirement type="package" version="1.19">perl-soap-lite</requirement>
     <requirement type="package" version="6.15">perl-lwp-simple</requirement>
-	  <requirement type="package" version="6.15">perl-libwww-perl</requirement>
+	<requirement type="package" version="6.15">perl-libwww-perl</requirement>
     <requirement type="package" version="2.95">perl-html-template</requirement>
     <requirement type="package" version="1.71">perl-uri</requirement>
     <requirement type="package" version="1.33">perl-text-csv</requirement>
+    <requirement type="package" version="2.90">perl-json</requirement>
   </requirements>
   <stdio>
     <exit_code level="fatal" range="1"/>
