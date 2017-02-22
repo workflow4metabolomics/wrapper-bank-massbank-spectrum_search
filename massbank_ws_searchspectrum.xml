@@ -132,8 +132,8 @@
   <tests>
     <test>
       <!--test 01 short result -  -->
-      <param name="masses" value="input01_69-pcgroups-mz-relative_int.tabular"/>
-      <param name="header_choice" value="true"/>
+      <param name="variableMetadata_in" value="input01_69-pcgroups-mz-relative_int.tabular"/>
+      <param name="header" value="true"/>
       <param name="nbheader" value="1"/>
       <param name="col_mz" value="1"/>
       <param name="col_pcgroup" value="14"/>
@@ -151,14 +151,12 @@
       <output file="out_test01.tabular" name="variableMetadata_out"/>
       <output file="out_test01.html" name="massBankSpectraOutWeb"/>
       <output file="out_test01.txt" name="massBankSpectraOutXlsx"/>
-      <output file="out_test01.json" name="massBankSpectraOutJson"/>
+      <!--<output file="out_test01.json" name="massBankSpectraOutJson"/> The JSON output structure is messy, so it is delete from test-->
     </test>
-    <test>
-  		<!--test 02 : lot of results - 3 columns file-->
+    <!--t<test>
   	</test>
     <test>
-  		<!--test 03 : fake results - with high threshold -->
-  	</test>
+  	</test>-->
   </tests>
   <help><![CDATA[
 
