@@ -64,7 +64,7 @@
     </conditional>
     <param display="checkboxes" help="" label="What kind of Ionization Search will be done?" multiple="True" name="mode" type="select">
       <option selected="true" value="Positive">Positif Mode</option>
-      <option selected="true" value="Negative">Negatif Mode</option>
+      <option value="Negative">Negatif Mode</option>
     </param>
     <param help="Default value is 0.5." label="Score threshold to apply on returned MassBank results" max="1" min="0" name="score_threshold" type="float" value="0.5"/>
     <conditional name="advanced">
